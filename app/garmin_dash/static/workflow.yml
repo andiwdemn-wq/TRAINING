@@ -1,0 +1,37 @@
+# Wird vom Garmin-Dashboard automatisch hochgeladen – Änderungen bitte in garmin_dash/static/workflow.yml machen.
+name: Dashboard aktualisieren
+
+on:
+  schedule:
+    - cron: "15 5 * * *"    # ca. 06:15 / 07:15 Uhr deutscher Zeit
+    - cron: "15 16 * * *"   # ca. 17:15 / 18:15 Uhr
+  workflow_dispatch:         # „Run workflow“-Knopf: jederzeit von Hand, auch vom iPhone
+
+concurrency:
+  group: dashboard
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: app
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet -r app/requirements.txt
+      - name: Garmin und Kalender abrufen, verschlüsselt hochladen
+        env:
+          STATE_KEY: ${{ secrets.STATE_KEY }}
+          DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
+          GOOGLE_CALENDAR_ICS: ${{ secrets.GOOGLE_CALENDAR_ICS }}
+          GITHUB_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
+          GITHUB_REPO: ${{ github.repository }}
+          TZ: Europe/Berlin
+        run: python app/update_dashboard.py --auto

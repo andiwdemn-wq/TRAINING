@@ -1,0 +1,1633 @@
+<!doctype html>
+<html lang="de" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mein Training</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+  // Theme vor dem ersten Zeichnen setzen (kein Aufblitzen)
+  (function () {
+    var h = new URLSearchParams(location.hash.slice(1)).get('theme'), t = null;
+    try { t = localStorage.getItem('gd-theme'); } catch (e) {}
+    document.documentElement.dataset.theme = h || t || 'light';
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #ffffff;
+  --panel: #ffffff;
+  --panel-2: #f3f6f2;
+  --line: #e6ebe5;
+  --ink: #0e1410;
+  --ink-2: #48524a;
+  --muted: #879087;
+  --accent: #16a34a;
+  --lime: #b9f09d;
+  --lime-ink: #0d2615;
+  --pill: #0e1410;
+  --pill-ink: #ffffff;
+  --good: #16a34a;
+  --warn: #84cc16;
+  --bad: #e5484d;
+  --c1: #16a34a;
+  --c2: #14532d;
+  --c3: #84cc16;
+  --c4: #22c55e;
+  --c5: #166534;
+  --tip: #0e1410;
+  --tip-ink: #ffffff;
+  --shadow: 0 1px 2px rgba(14, 20, 16, .04), 0 6px 22px rgba(14, 20, 16, .045);
+  --glass: rgba(255, 255, 255, .55);
+  --glass-line: rgba(255, 255, 255, .9);
+  --glass-ink: #0e1410;
+  --hero-a: #d9f99d;
+  --hero-b: #bbf7d0;
+  --hero-c: #f3f7f2;
+  --hero-d: #ffffff;
+  --topo: rgba(20, 83, 45, .07);
+  --radius: 20px;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #000000;
+  --panel: #0e100e;
+  --panel-2: #191c19;
+  --line: #232723;
+  --ink: #f2f5f2;
+  --ink-2: #b3bab3;
+  --muted: #7a827a;
+  --accent: #4ade80;
+  --lime: #b9f09d;
+  --lime-ink: #0d2615;
+  --pill: #f2f5f2;
+  --pill-ink: #000000;
+  --good: #4ade80;
+  --warn: #bef264;
+  --bad: #f87171;
+  --c1: #4ade80;
+  --c2: #bbf7d0;
+  --c3: #a3e635;
+  --c4: #22c55e;
+  --c5: #86efac;
+  --tip: #1b1f1b;
+  --tip-ink: #ffffff;
+  --shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 10px 30px rgba(0, 0, 0, .4);
+  --glass: rgba(12, 16, 12, .5);
+  --glass-line: rgba(255, 255, 255, .08);
+  --glass-ink: #f2f5f2;
+  --hero-a: #14532d;
+  --hero-b: #052e16;
+  --hero-c: #030503;
+  --hero-d: #0a0d0a;
+  --topo: rgba(255, 255, 255, .045);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 500 14.5px/1.45 Manrope, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+body { font-feature-settings: "tnum" 1, "cv11" 1; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; }
+.ico { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.still *, .still *::before, .still *::after { transition: none !important; animation: none !important; }
+
+/* ---------- Layout ---------- */
+.app { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; max-width: 1720px; margin: 0 auto; }
+@media (min-width: 1721px) { .side { border-left: 1px solid var(--line); } .app { border-right: 1px solid var(--line); } }
+.side { position: sticky; top: 0; height: 100vh; background: var(--panel); border-right: 1px solid var(--line);
+  display: flex; flex-direction: column; padding: 22px 16px 18px; gap: 6px; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 0 8px 22px; font-weight: 800; font-size: 17px; letter-spacing: -.01em; }
+.brand .mark { width: 34px; height: 34px; border-radius: 10px; background: var(--lime); color: var(--lime-ink); display: grid; place-items: center; }
+.brand .mark .ico { width: 20px; height: 20px; stroke-width: 2.4; }
+.nav-label { font-size: 12px; color: var(--muted); padding: 14px 10px 6px; font-weight: 600; }
+.nav a { display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: 12px; color: var(--ink-2); font-weight: 600; font-size: 14px; }
+.nav a:hover { background: var(--panel-2); color: var(--ink); }
+.nav a.active { background: var(--pill); color: var(--pill-ink); }
+.nav a.active .ico { color: var(--lime); }
+:root[data-theme="dark"] .nav a.active .ico { color: var(--accent); }
+:root[data-theme="dark"] .nav a.active { background: #1a1f1a; color: var(--ink); box-shadow: inset 3px 0 0 var(--accent); }
+.side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 12px; }
+.theme-switch { display: grid; grid-template-columns: 1fr 1fr; background: var(--panel-2); border-radius: 12px; padding: 4px; }
+.theme-switch button { all: unset; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 0;
+  border-radius: 9px; font-weight: 600; font-size: 13px; color: var(--muted); }
+.theme-switch button[aria-pressed="true"] { background: var(--panel); color: var(--ink); box-shadow: var(--shadow); }
+:root[data-theme="dark"] .theme-switch button[aria-pressed="true"] { background: #262b26; }
+.theme-switch button:focus-visible, .seg button:focus-visible, .iconbtn:focus-visible, .nav a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sync-info { font-size: 12px; color: var(--muted); padding: 0 6px; line-height: 1.5; }
+.sync-info b { color: var(--ink-2); font-weight: 600; }
+
+main { padding: 26px 32px 40px; min-width: 0; }
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 20px; margin-bottom: 22px; }
+.hello h1 { margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; }
+.hello h1 span { color: var(--muted); font-weight: 600; }
+.hello p { margin: 6px 0 0; color: var(--muted); font-size: 13.5px; }
+.controls { margin-left: auto; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.seg { display: inline-flex; background: var(--panel); border-radius: 14px; padding: 4px; box-shadow: var(--shadow); }
+.seg button { all: unset; cursor: pointer; padding: 8px 14px; border-radius: 10px; color: var(--ink-2); font-weight: 600; font-size: 13.5px; white-space: nowrap; }
+.seg button:hover { color: var(--ink); }
+.seg button[aria-pressed="true"] { background: var(--pill); color: var(--pill-ink); }
+.datenav { display: inline-flex; align-items: center; gap: 4px; background: var(--panel); border-radius: 14px; padding: 4px; box-shadow: var(--shadow); }
+.iconbtn { all: unset; cursor: pointer; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; color: var(--ink-2); }
+.iconbtn:hover { background: var(--panel-2); color: var(--ink); }
+.iconbtn:disabled { opacity: .3; cursor: default; background: none; }
+.datenav input { border: 0; background: transparent; color: var(--ink); font: 600 13.5px Manrope, system-ui, sans-serif; padding: 0 4px; width: 128px; color-scheme: inherit; }
+
+.card, .tile:not(.hl), .seg, .datenav, .sec-hd .chip-ico, .hero { border: 1px solid var(--line); }
+:root[data-theme="dark"] .card, :root[data-theme="dark"] .tile, :root[data-theme="dark"] .seg, :root[data-theme="dark"] .datenav,
+:root[data-theme="dark"] .sec-hd .chip-ico, :root[data-theme="dark"] .hero { border: 1px solid rgba(255, 255, 255, .07); }
+.st.bg-ok, .badge.bg-ok { color: #0d2615; }
+:root[data-theme="dark"] .card, :root[data-theme="dark"] .tile:not(.hl) { background: linear-gradient(180deg, rgba(255, 255, 255, .035), transparent 45%), var(--panel);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 10px 28px rgba(0, 0, 0, .3); }
+:root[data-theme="dark"] .seg button[aria-pressed="true"] { background: #262b26; color: var(--ink); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08); }
+:root[data-theme="dark"] .spark i.now { box-shadow: 0 0 8px rgba(74, 222, 128, .55); }
+.goals { display: flex; flex-direction: column; gap: 12px; padding: 14px; border-radius: 14px; border: 1px solid var(--line); margin: 18px 0 0; }
+.goals h4 { margin: 0; font-size: 12.5px; font-weight: 700; display: flex; justify-content: space-between; }
+.goals h4 span { color: var(--muted); font-weight: 500; }
+.goal .gl { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-2); font-weight: 600; margin-bottom: 5px; }
+.goal .gl b { color: var(--ink); }
+.goal .gt { height: 6px; border-radius: 99px; background: var(--panel-2); overflow: hidden; }
+.goal .gt i { display: block; height: 100%; border-radius: 99px; background: var(--accent); }
+:root[data-theme="dark"] .tile.hl { background: linear-gradient(160deg, #17402a 0%, #0f2a1d 100%); color: var(--ink); border-color: rgba(180, 239, 152, .18); }
+:root[data-theme="dark"] .tile.hl .k, :root[data-theme="dark"] .tile.hl .t, :root[data-theme="dark"] .tile.hl .v small { color: rgba(214, 245, 222, .72); }
+:root[data-theme="dark"] .tile.hl .chip-ico { background: rgba(180, 239, 152, .14); color: var(--lime); }
+:root[data-theme="dark"] .tile.hl .spark i { background: rgba(180, 239, 152, .2); } :root[data-theme="dark"] .tile.hl .spark i.now { background: var(--lime); }
+:root[data-theme="dark"] .tile.hl .d.good { color: var(--good); } :root[data-theme="dark"] .tile.hl .d.bad { color: var(--bad); } :root[data-theme="dark"] .tile.hl .d.neutral { color: var(--ink-2); }
+.grp { grid-column: 1 / -1; font-size: 13px; font-weight: 700; color: var(--ink-2); margin: 6px 0 -4px 2px; display: flex; gap: 8px; align-items: baseline; }
+.grp span { color: var(--muted); font-weight: 500; }
+.grp:first-child { margin-top: 0; }
+.me { display: flex; gap: 10px; align-items: center; padding: 12px; border-radius: 14px; background: var(--panel-2); }
+.me .av { width: 36px; height: 36px; border-radius: 50%; background: var(--lime); color: var(--lime-ink); display: grid; place-items: center; font-weight: 800; flex: none; }
+.me b { display: block; font-size: 13.5px; } .me small { color: var(--muted); font-size: 12px; }
+.avgline { position: absolute; left: 0; right: 0; border-top: 1.5px dashed var(--glass-ink); opacity: .45; pointer-events: none; }
+.avgline span { position: absolute; right: 0; top: -20px; font-size: 11px; font-weight: 700; }
+
+/* ---------- Banner ---------- */
+.banner { display: flex; gap: 12px; align-items: center; background: color-mix(in srgb, var(--warn) 14%, var(--panel)); border-radius: 16px;
+  padding: 12px 16px; margin-bottom: 18px; font-size: 13.5px; }
+.banner .ico { color: var(--warn); }
+
+/* ---------- KPI-Kacheln ---------- */
+.tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
+.tile { background: var(--panel); border-radius: var(--radius); padding: 16px 16px 14px; box-shadow: var(--shadow); display: flex; flex-direction: column; min-width: 0; }
+.tile .hd { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.tile .k { color: var(--ink-2); font-size: 13px; font-weight: 600; }
+.chip-ico { width: 34px; height: 34px; border-radius: 11px; background: var(--panel-2); display: grid; place-items: center; color: var(--ink-2); flex: none; }
+.tile .v { font-size: 28px; font-weight: 800; letter-spacing: -.035em; margin-top: 4px; line-height: 1.1; white-space: nowrap; }
+.tile .v small { font-size: 13px; font-weight: 600; color: var(--muted); margin-left: 3px; letter-spacing: 0; }
+.tile .v.nodata { font-size: 14px; font-weight: 500; color: var(--muted); font-style: italic; padding: 8px 0 4px; letter-spacing: 0; }
+.tile .t { font-size: 12px; color: var(--muted); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.spark { margin-top: 14px; height: 26px; display: flex; align-items: flex-end; gap: 3px; }
+.spark i { flex: 1; max-width: 12px; border-radius: 3px; background: color-mix(in srgb, var(--ink) 12%, transparent); min-height: 3px; }
+.spark i.now { background: var(--accent); }
+.spark i.none { background: color-mix(in srgb, var(--ink) 5%, transparent); }
+.tile.hl .spark i { background: rgba(15, 36, 22, .16); } .tile.hl .spark i.now { background: var(--lime-ink); }
+.tile.hl { background: var(--lime); color: var(--lime-ink); }
+.tile.hl .k, .tile.hl .t, .tile.hl .v small { color: rgba(15, 36, 22, .7); }
+.tile.hl .chip-ico { background: rgba(255, 255, 255, .55); color: var(--lime-ink); }
+.d { font-weight: 700; }
+.d.good { color: var(--good); } .d.bad { color: var(--bad); } .d.neutral { color: var(--ink-2); }
+.tile.hl .d.good { color: #0b6b2c; } .tile.hl .d.bad { color: #b3261e; } .tile.hl .d.neutral { color: var(--lime-ink); }
+
+/* ---------- Sektionen & Karten ---------- */
+section { margin-top: 34px; scroll-margin-top: 20px; }
+.sec-hd { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.sec-hd .chip-ico { background: var(--panel); box-shadow: var(--shadow); color: var(--accent); }
+.sec-hd h2 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -.02em; }
+.sec-hd span { color: var(--muted); font-size: 13px; font-weight: 500; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; }
+.card { background: var(--panel); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); min-width: 0; }
+.card h3 { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+.card .sub { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+.kv { font-size: 26px; font-weight: 800; letter-spacing: -.03em; margin-top: 8px; line-height: 1; }
+.kv small { font-size: 12.5px; font-weight: 600; color: var(--muted); letter-spacing: 0; margin-left: 4px; }
+.card-hd { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+.chart { position: relative; height: 240px; }
+.chart.nodata, .empty { display: grid; place-items: center; min-height: 120px; border-radius: 14px; color: var(--muted); font-style: italic; font-size: 13.5px;
+  background: repeating-linear-gradient(135deg, transparent 0 7px, color-mix(in srgb, var(--ink) 5%, transparent) 7px 8px); }
+.chart.nodata { height: 240px; }
+.nodata { color: var(--muted); font-style: italic; font-weight: 500; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: 0; }
+.legend i.line { width: 14px; height: 3px; border-radius: 2px; vertical-align: 3px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap: 16px 18px; }
+.stat .k { color: var(--muted); font-size: 12.5px; font-weight: 600; }
+.stat .v { font-size: 22px; font-weight: 800; letter-spacing: -.03em; margin-top: 2px; }
+.stat .v small { font-size: 12px; color: var(--muted); font-weight: 600; margin-left: 2px; letter-spacing: 0; }
+.stat .v.nodata { font-size: 13.5px; font-weight: 500; letter-spacing: 0; }
+.note { color: var(--muted); font-size: 12px; margin-top: 14px; line-height: 1.5; }
+
+/* ---------- Hero: Form heute (Glas) ---------- */
+.hero { position: relative; border-radius: 26px; overflow: hidden; margin-top: 18px; padding: 22px; min-height: 420px; color: var(--glass-ink);
+  background:
+    radial-gradient(70% 90% at 88% 0%, var(--hero-a) 0%, transparent 62%),
+    radial-gradient(60% 80% at 0% 100%, var(--hero-b) 0%, transparent 65%),
+    linear-gradient(155deg, var(--hero-c) 0%, var(--hero-d) 100%);
+  box-shadow: var(--shadow); display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: 1fr auto; gap: 18px; }
+.hero .topo { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.glass { position: relative; background: var(--glass); border: 1px solid var(--glass-line); border-radius: 20px; padding: 18px 20px;
+  backdrop-filter: blur(18px) saturate(140%); -webkit-backdrop-filter: blur(18px) saturate(140%); min-width: 0; }
+.glass h3 { margin: 0; font-size: 15px; font-weight: 700; }
+.glass .sub { font-size: 12.5px; opacity: .7; margin-top: 2px; }
+.verdict { display: flex; gap: 12px; align-items: center; margin: 16px 0 14px; }
+.verdict .badge { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; flex: none; color: #fff; }
+.verdict .badge .ico { width: 22px; height: 22px; stroke-width: 2.4; }
+.verdict .txt { font-size: 22px; font-weight: 800; letter-spacing: -.025em; line-height: 1.15; }
+.verdict .txt small { display: block; font-size: 13px; font-weight: 500; opacity: .72; letter-spacing: 0; margin-top: 3px; }
+.bg-good { background: var(--good); } .bg-ok { background: var(--warn); } .bg-bad { background: var(--bad); } .bg-info { background: var(--muted); }
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.checks li { display: grid; grid-template-columns: 22px 1fr; gap: 0 8px; padding: 7px 0; border-top: 1px solid var(--glass-line); font-size: 13.5px; }
+.checks li:first-child { border-top: 0; }
+.checks .ex { grid-column: 2; font-size: 12px; opacity: .68; }
+.st { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; color: #fff; margin-top: 1px; }
+.st .ico { width: 11px; height: 11px; stroke-width: 3.2; }
+.gauge-wrap { display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; }
+.gauge-hd { align-self: stretch; text-align: left; }
+.gauge { width: 100%; max-width: 300px; margin-top: 8px; }
+.gauge .num { font-size: 62px; font-weight: 700; letter-spacing: -.05em; fill: currentColor; }
+.gauge .lbl { font-size: 13px; font-weight: 600; fill: currentColor; opacity: .7; }
+.gauge-cap { font-size: 13px; opacity: .8; }
+.metrics { display: flex; flex-direction: column; padding: 6px 20px; }
+.metric { display: grid; grid-template-columns: auto 1fr auto; align-items: baseline; gap: 10px; padding: 12px 0; border-top: 1px solid var(--glass-line); }
+.metric:first-child { border-top: 0; }
+.metric .mv { font-size: 34px; font-weight: 300; letter-spacing: -.04em; line-height: 1; }
+.metric .ml { font-size: 13px; font-weight: 600; opacity: .8; }
+.metric .ml small { display: block; font-weight: 500; opacity: .75; font-size: 11.5px; }
+.metric .md { font-size: 13px; font-weight: 700; }
+.metric .md.good { color: var(--good); } .metric .md.bad { color: var(--bad); } .metric .md.neutral { opacity: .6; }
+.strip { grid-column: 1 / -1; padding: 14px 20px 16px; }
+.strip-hd { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 13px; margin-bottom: 10px; }
+.strip-hd b { font-weight: 700; }
+.strip-hd span { opacity: .7; }
+.bars { display: flex; align-items: flex-end; gap: 5px; height: 78px; position: relative; }
+.bars .b { flex: 1; max-width: 26px; margin: 0 auto; border-radius: 5px 5px 2px 2px; min-height: 5px; position: relative; opacity: .7; }
+.bars .b.none { background: repeating-linear-gradient(135deg, transparent 0 3px, var(--topo) 3px 5px); opacity: 1; }
+.bars .b.sel { opacity: 1; box-shadow: 0 0 0 2px var(--glass-ink); }
+.bars .b.sel::after { content: ""; position: absolute; left: 50%; top: -14px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: var(--glass-ink); }
+.bars-x { display: flex; gap: 5px; margin-top: 6px; font-size: 11px; opacity: .65; }
+.bars-x span { flex: 1; max-width: 26px; margin: 0 auto; text-align: center; white-space: nowrap; overflow: visible; display: flex; justify-content: center; }
+
+/* ---------- Leistung: Fitness, Laufprognose, Rennen ---------- */
+.perf { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, .9fr); gap: 16px; margin-top: 16px; }
+.factors { list-style: none; margin: 0; padding: 0; }
+.factors li { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 10px 0; border-top: 1px solid var(--line); align-items: center; }
+.factors li:first-child { border-top: 0; }
+.factors .nm { font-size: 13.5px; font-weight: 600; display: flex; gap: 8px; align-items: center; }
+.factors .ex { grid-column: 1 / 3; color: var(--muted); font-size: 12px; padding-left: 26px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 99px; font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+.pill.good { background: color-mix(in srgb, var(--good) 14%, transparent); color: var(--good); }
+.pill.ok { background: color-mix(in srgb, var(--warn) 16%, transparent); color: color-mix(in srgb, var(--warn) 75%, var(--ink)); }
+.pill.bad { background: color-mix(in srgb, var(--bad) 14%, transparent); color: var(--bad); }
+.pill.info { background: var(--panel-2); color: var(--ink-2); }
+.verdict-sm { display: flex; gap: 10px; align-items: center; margin: 12px 0 8px; }
+.verdict-sm .badge { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; color: #fff; flex: none; }
+.verdict-sm .badge .ico { width: 17px; height: 17px; stroke-width: 2.6; }
+.verdict-sm b { font-size: 16px; font-weight: 800; letter-spacing: -.02em; display: block; }
+.verdict-sm small { color: var(--muted); font-size: 12.5px; }
+.cap { display: flex; flex-direction: column; }
+.cap .huge { font-size: 92px; font-weight: 800; letter-spacing: -.07em; line-height: .9; margin: 18px 0 4px; }
+.cap .huge small { font-size: 22px; letter-spacing: -.01em; margin-left: 6px; color: var(--muted); font-weight: 700; }
+.cap .lead { font-size: 13.5px; color: var(--ink-2); font-weight: 600; }
+.cap .lead b { color: var(--ink); }
+.range { margin: 16px 0 4px; height: 10px; border-radius: 99px; background: var(--panel-2); position: relative; overflow: hidden; }
+.range i { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 99px; }
+.mini { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 16px; margin-top: 16px; }
+.mini .k { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+.mini .v { font-size: 15px; font-weight: 800; letter-spacing: -.01em; }
+.races { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.race { border-radius: 16px; padding: 12px 14px; background: var(--panel-2); display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: center; }
+.race .rn { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.race .rt { font-size: 20px; font-weight: 800; letter-spacing: -.03em; }
+.race .rp { font-size: 12px; color: var(--muted); text-align: right; }
+.race.first { background: var(--pill); color: var(--pill-ink); }
+.race.first .rn, .race.first .rp { color: color-mix(in srgb, var(--pill-ink) 65%, transparent); }
+:root[data-theme="dark"] .race.first { background: var(--lime); color: var(--lime-ink); }
+:root[data-theme="dark"] .race.first .rn, :root[data-theme="dark"] .race.first .rp { color: rgba(15, 36, 22, .65); }
+
+/* ---------- Tabelle ---------- */
+.tbl { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { text-align: left; padding: 11px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { color: var(--muted); font-weight: 600; font-size: 12px; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--panel-2); }
+td.num, th.num { text-align: right; }
+.act { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.act .chip-ico { width: 30px; height: 30px; border-radius: 9px; }
+.act .chip-ico .ico { width: 15px; height: 15px; }
+.tag { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 11.5px; font-weight: 700; background: var(--panel-2); color: var(--ink-2); }
+.phase-bar { display: flex; height: 12px; border-radius: 99px; overflow: hidden; gap: 2px; margin: 14px 0 8px; }
+.phase-bar div { min-width: 3px; }
+.more { color: var(--muted); font-size: 12.5px; margin-top: 10px; }
+
+/* ---------- Plan ---------- */
+.week-hd { display: flex; justify-content: space-between; align-items: baseline; margin: 4px 0 10px; font-size: 13px; }
+.week-hd b { font-weight: 700; } .week-hd span { color: var(--muted); }
+.week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; margin-bottom: 18px; }
+.week:last-child { margin-bottom: 0; }
+.pday { border-radius: 16px; background: var(--panel-2); padding: 10px; min-height: 132px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.pday.today { background: var(--panel); box-shadow: 0 0 0 2px var(--accent); }
+.pday.past { opacity: .78; }
+.pd-h { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); font-weight: 600; }
+.pd-h b { color: var(--ink); font-weight: 800; font-size: 13px; }
+.shift { align-self: flex-start; font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 99px; white-space: nowrap; }
+.shift.s-Früh { background: var(--lime); color: var(--lime-ink); }
+.shift.s-Spät { background: color-mix(in srgb, var(--accent) 22%, transparent); color: color-mix(in srgb, var(--accent) 60%, var(--ink)); }
+.shift.s-Nacht { background: var(--pill); color: var(--pill-ink); }
+.shift.s-Frei, .shift.s-Urlaub { background: transparent; color: var(--ink-2); box-shadow: inset 0 0 0 1px var(--line); }
+.shift small { font-weight: 600; opacity: .75; margin-left: 3px; }
+.sess { display: grid; grid-template-columns: 26px 1fr; gap: 7px; align-items: start; padding: 7px; border-radius: 11px; background: var(--panel); font-size: 12px; position: relative; }
+:root[data-theme="dark"] .sess { background: #232823; }
+.pday.today .sess { background: var(--panel-2); }
+.sess .si { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: var(--panel-2); color: var(--ink-2); }
+.sess .si .ico { width: 14px; height: 14px; }
+.sess b { display: block; font-weight: 700; font-size: 12px; line-height: 1.25; }
+.sess small { color: var(--muted); font-size: 11px; line-height: 1.3; display: block; margin-top: 2px; }
+.sess small.clamp { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.sess > div { min-width: 0; overflow-wrap: anywhere; }
+.sess.done .si { background: var(--accent); color: #fff; }
+.sess.missed .si { background: color-mix(in srgb, var(--bad) 16%, transparent); color: var(--bad); }
+.sess .stt { font-size: 10.5px; font-weight: 800; margin-top: 3px; display: inline-block; }
+.sess.done .stt { color: var(--good); } .sess.missed .stt { color: var(--bad); } .sess.planned .stt, .sess.today .stt { color: var(--muted); }
+.rest { color: var(--muted); font-size: 12px; font-style: italic; margin-top: auto; }
+.today-plan { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--glass); border: 1px solid var(--glass-line); margin: -4px 0 12px; font-size: 13px; }
+.today-plan .ico { color: var(--accent); }
+.today-plan b { font-weight: 700; }
+.today-plan small { display: block; opacity: .7; font-size: 12px; }
+.next-steps { margin: 12px 0 0; padding-left: 18px; color: var(--ink-2); font-size: 13px; }
+.next-steps li { margin: 3px 0; }
+.plan-hd { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.plan-ctl { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.seg.sm { box-shadow: none; background: var(--panel-2); border: 0; }
+.seg.sm button { padding: 6px 12px; font-size: 12.5px; }
+.plan-nav { display: inline-flex; align-items: center; gap: 2px; background: var(--panel-2); border-radius: 12px; padding: 3px; }
+.plan-nav .iconbtn { width: 30px; height: 30px; }
+.plan-nav span { font-size: 13px; font-weight: 700; min-width: 128px; text-align: center; }
+.month-wd, .month { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.month-wd { margin-bottom: 6px; font-size: 11.5px; color: var(--muted); font-weight: 700; padding: 0 8px; }
+.mday { min-height: 104px; border-radius: 12px; background: var(--panel-2); padding: 7px 8px; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.mday.out { opacity: .35; }
+.mday.today { background: var(--panel); box-shadow: 0 0 0 2px var(--accent); }
+.mday .dn { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 800; }
+.shift.xs { font-size: 10.5px; padding: 2px 7px; }
+.mrow { display: flex; gap: 5px; align-items: center; font-size: 11.5px; font-weight: 600; min-width: 0; }
+.mrow .ico { width: 13px; height: 13px; flex: none; }
+.mrow span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mrow.done { color: var(--good); } .mrow.missed { color: var(--bad); } .mrow.planned, .mrow.today { color: var(--ink-2); }
+.month-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; font-size: 12px; color: var(--muted); }
+@media (max-width: 1100px) { .week { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.msess { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.shift .sa, .lg-short { display: none; }
+@media (max-width: 640px) {
+  /* Handy: ruhiger Monatskalender – Zahl, Dienst-Kürzel, Symbole */
+  .month, .month-wd { gap: 3px; }
+  .month-wd { padding: 0; text-align: center; font-size: 11px; }
+  .mday { min-height: 62px; padding: 6px 2px 5px; border-radius: 10px; align-items: center; gap: 4px; background: transparent; }
+  .mday:not(.out) { background: var(--panel-2); }
+  .mday.today { background: var(--panel); box-shadow: inset 0 0 0 1.5px var(--accent); }
+  .mday.out .shift, .mday.out .msess { display: none; }
+  .mday .dn { flex-direction: column; gap: 4px; font-size: 12.5px; font-weight: 700; }
+  .shift.xs { min-width: 20px; height: 18px; padding: 0 5px; display: grid; place-items: center; font-size: 10.5px; align-self: center; }
+  .shift.xs.s-Frei { display: none; }
+  .shift .sf { display: none; } .shift .sa { display: inline; }
+  .msess { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 2px; }
+  .mrow span { display: none; } .mrow .ico { width: 14px; height: 14px; }
+  .lg-full { display: none; } .lg-short { display: inline; }
+  .month-legend { gap: 4px 12px; font-size: 11.5px; }
+}
+@media (max-width: 640px) { .week { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+footer { margin-top: 40px; color: var(--muted); font-size: 12.5px; }
+footer details { margin-top: 8px; }
+footer summary { cursor: pointer; }
+footer table { max-width: 560px; margin-top: 8px; background: var(--panel); border-radius: 14px; overflow: hidden; }
+
+/* ---------- Responsiv ---------- */
+@media (max-width: 1280px) {
+  .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .hero { grid-template-columns: 1fr 1fr; }
+  .hero .metrics { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0 16px; }
+  .hero .metric { border-top: 0; grid-template-columns: 1fr; }
+  .perf { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 900px) {
+  .app { display: block; }  /* Block statt Grid, damit die obere Leiste beim Scrollen mitläuft (sticky) */
+  .side { top: 0; }
+  .side .nav { min-width: 0; overflow-x: auto; scrollbar-width: none; }
+  .seg { overflow-x: auto; }
+  .side { position: sticky; z-index: 20; height: auto; flex-direction: row; align-items: center; padding: 10px 12px; gap: 8px; border-right: 0; border-bottom: 1px solid var(--line); min-width: 0; }
+  .brand { padding: 0 6px 0 0; } .brand span { display: none; }
+  .nav-label, .sync-info, .me, .goals { display: none; }
+  .nav { display: flex; gap: 2px; }
+  .nav a { padding: 8px 10px; white-space: nowrap; }
+  .side-foot { margin: 0 0 0 auto; }
+  .theme-switch button span { display: none; } .theme-switch button { padding: 6px 10px; }
+  main { padding: 18px 16px 32px; }
+  .hello h1 { font-size: 24px; }
+  .controls { margin-left: 0; width: 100%; }
+  .seg { width: 100%; } .seg button { flex: 1; text-align: center; padding: 8px 2px; font-size: 13px; }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .tile .v { font-size: 23px; }
+  .hero { grid-template-columns: 1fr; padding: 14px; }
+  .hero .metrics { grid-template-columns: 1fr 1fr; }
+  .perf { grid-template-columns: 1fr; }
+  .cap .huge { font-size: 84px; }
+}
+
+/* ---------- Handy (bis 640 px) ---------- */
+.tabbar, .agenda, .act-cards, .sec-hd .chev, .stand-mini { display: none; }
+.pull { display: none; position: fixed; top: calc(64px + env(safe-area-inset-top)); left: 50%; z-index: 40; transform: translate(-50%, 0);
+  background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); border-radius: 99px; padding: 8px 14px;
+  font-size: 12.5px; font-weight: 700; align-items: center; gap: 8px; white-space: nowrap; }
+.pull.show { display: flex; }
+.pull .ico { width: 16px; height: 16px; transition: transform .2s; }
+.pull.ready .ico { color: var(--accent); transform: rotate(180deg); }
+.moresheet { position: fixed; left: 10px; right: 10px; bottom: calc(78px + env(safe-area-inset-bottom)); z-index: 31; background: var(--panel);
+  border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 18px 50px rgba(0, 0, 0, .28); padding: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.moresheet[hidden] { display: none; }
+.moresheet button { all: unset; display: flex; gap: 10px; align-items: center; padding: 13px 12px; border-radius: 14px; font-weight: 600; font-size: 14px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.moresheet button .ico { color: var(--accent); }
+.moresheet button.active { background: var(--panel-2); }
+@media (max-width: 640px) {
+  body { padding-bottom: calc(70px + env(safe-area-inset-bottom)); }
+  /* obere Leiste: nur Titel, Stand, Hell/Dunkel */
+  .side { padding: calc(8px + env(safe-area-inset-top)) 14px 8px; }
+  .side .nav { display: none; }
+  .brand { padding: 0; gap: 10px; } .brand .mark { width: 30px; height: 30px; }
+  .brand .bt { display: block; font-size: 15.5px; line-height: 1.15; }
+  .stand-mini { display: block; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0; }
+  /* untere Menüleiste */
+  .tabbar { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    background: color-mix(in srgb, var(--panel) 90%, transparent); backdrop-filter: blur(16px) saturate(150%); -webkit-backdrop-filter: blur(16px) saturate(150%);
+    border-top: 1px solid var(--line); padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); }
+  .tabbar button { all: unset; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 5px 0; font-size: 10.5px; font-weight: 700;
+    color: var(--muted); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .tabbar button .ico { width: 22px; height: 22px; }
+  .tabbar button.active { color: var(--ink); } .tabbar button.active .ico { color: var(--accent); }
+  /* Reihenfolge: Begrüßung, Heute, Zeitraum, Kacheln */
+  main { display: flex; flex-direction: column; padding: 14px 14px 24px; }
+  .top, #sec-overview { display: contents; }
+  .hello { order: 1; margin-bottom: 12px; } .hello h1 { font-size: 22px; } .hello p { display: none; }
+  #banner { order: 2; }
+  .hero { order: 3; margin-top: 0; min-height: 0; padding: 10px; gap: 10px; border-radius: 22px; }
+  .controls { order: 4; margin: 18px 0 4px; }
+  .tiles { order: 5; margin-top: 10px; }
+  .perf { order: 6; }
+  main > section { order: 10; } footer { order: 11; }
+  .hero .glass { padding: 14px; border-radius: 16px; }
+  .hero .metrics { order: 2; padding: 2px 14px; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+  .hero .metric { padding: 10px 0; } .metric .mv { font-size: 26px; }
+  .hero .gauge-wrap { order: 3; } .gauge { max-width: 210px; } .gauge .num { font-size: 54px; }
+  .hero .strip { order: 4; } .strip-hd { flex-direction: column; gap: 2px; } .strip-hd span { font-size: 11px; }
+  .verdict { margin: 12px 0 10px; } .verdict .txt { font-size: 19px; }
+  /* kompakte Kacheln */
+  .tiles { gap: 8px; }
+  .tile { padding: 11px 12px 10px; border-radius: 16px; }
+  .tile .chip-ico { display: none; }
+  .tile .k { font-size: 12px; } .tile .v { font-size: 21px; margin-top: 2px; } .tile .t { font-size: 11px; margin-top: 2px; }
+  .spark { height: 16px; margin-top: 8px; gap: 2px; }
+  .grp { margin: 8px 0 -2px 2px; font-size: 12.5px; }
+  /* Karten & Diagramme */
+  section { margin-top: 26px; scroll-margin-top: 64px; }
+  .grid { gap: 10px; }
+  .card { padding: 14px; border-radius: 18px; }
+  .card-hd { flex-direction: column; gap: 6px; margin-bottom: 8px; }
+  .chart, .chart.nodata { height: 185px; }
+  .legend { font-size: 11.5px; gap: 2px 12px; }
+  .perf { gap: 10px; margin-top: 10px; } .cap .huge { font-size: 72px; }
+  /* einklappbare Bereiche */
+  .sec-hd { cursor: pointer; -webkit-tap-highlight-color: transparent; margin-bottom: 10px; }
+  .sec-hd h2 { font-size: 18px; } .sec-hd .chip-ico { width: 30px; height: 30px; }
+  .sec-hd .ssub { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
+  .sec-hd .chev { display: grid; place-items: center; margin-left: auto; color: var(--muted); transition: transform .2s; }
+  section.collapsed > :not(.sec-hd) { display: none !important; }
+  section.collapsed .chev { transform: rotate(-90deg); }
+  /* Plan als Liste */
+  .plan-hd .sub { display: none; } .plan-ctl { width: 100%; justify-content: space-between; }
+  .week, .week-hd { display: none; }
+  .agenda { display: flex; flex-direction: column; }
+  .ag-wk { font-size: 12px; font-weight: 700; color: var(--muted); margin: 14px 0 2px; } .ag-wk:first-child { margin-top: 0; }
+  .ag-day { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .ag-day.past { opacity: .6; }
+  .ag-d { border-radius: 12px; background: var(--panel-2); text-align: center; padding: 5px 0 6px; align-self: start; }
+  .ag-d small { display: block; font-size: 10.5px; font-weight: 700; color: var(--muted); }
+  .ag-d b { display: block; font-size: 16px; font-weight: 800; line-height: 1.1; }
+  .ag-day.today .ag-d { background: var(--accent); color: #04140a; } .ag-day.today .ag-d small { color: inherit; opacity: .75; }
+  .ag-b { display: flex; flex-direction: column; gap: 6px; min-width: 0; justify-content: center; }
+  .ag-s { display: flex; gap: 8px; align-items: flex-start; font-size: 13.5px; }
+  .ag-s .ico { width: 16px; height: 16px; margin-top: 2px; color: var(--ink-2); }
+  .ag-s b { font-weight: 700; } .ag-s small { display: block; color: var(--muted); font-size: 12px; line-height: 1.35; }
+  .ag-s .stt { display: inline-block; font-size: 11px; font-weight: 800; margin-top: 3px; color: var(--muted); }
+  .ag-s.done .ico, .ag-s.done .stt { color: var(--good); } .ag-s.missed .ico, .ag-s.missed .stt { color: var(--bad); }
+  .ag-rest { color: var(--muted); font-size: 13px; }
+  /* Aktivitäten als Karten */
+  .card.tbl { padding: 4px 14px; }
+  .tbl table, .tbl > .more { display: none; }
+  .act-cards { display: flex; flex-direction: column; }
+  .acard { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .acard:first-child { border-top: 0; }
+  .acard .chip-ico { width: 34px; height: 34px; border-radius: 10px; color: var(--accent); }
+  .acard b { display: block; font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .acard small { display: block; color: var(--muted); font-size: 12px; margin-top: 1px; }
+  .ac-v { display: flex; flex-wrap: wrap; gap: 2px 12px; margin-top: 6px; font-size: 13px; font-weight: 700; }
+  .ac-v span small { display: inline; font-weight: 600; margin-left: 2px; }
+  .acard.extra { display: none; } .act-cards.all .acard.extra { display: grid; }
+  .show-all { all: unset; cursor: pointer; text-align: center; padding: 12px; margin: 4px 0 10px; border-radius: 12px; background: var(--panel-2); font-weight: 700; font-size: 13.5px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><span class="mark"><svg class="ico" viewBox="0 0 24 24"><path d="M3 12h4l2.5-6 5 12 2.5-6h4"/></svg></span><span class="bt">Mein Training<small class="stand-mini" id="standMini"></small></span></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="goals" id="goals"></div>
+    <div class="side-foot">
+      <div class="me" id="me"></div>
+      <div class="theme-switch" role="group" aria-label="Darstellung">
+        <button data-theme-set="light"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span>Hell</span></button>
+        <button data-theme-set="dark"><svg class="ico" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span>Dunkel</span></button>
+      </div>
+      <div class="sync-info" id="syncInfo"></div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="top">
+      <div class="hello"><h1 id="hello"></h1><p id="rangeLabel"></p></div>
+      <div class="controls">
+        <div class="seg" role="group" aria-label="Zeitraum" id="periods"></div>
+        <div class="datenav">
+          <button class="iconbtn" id="prev" aria-label="Vorheriger Zeitraum"><svg class="ico" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <input type="date" id="anchor" aria-label="Enddatum">
+          <button class="iconbtn" id="next" aria-label="Nächster Zeitraum"><svg class="ico" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+    </div>
+    <div id="banner"></div>
+
+    <section id="sec-overview" style="margin-top:0">
+      <div class="tiles" id="tiles"></div>
+      <div class="hero" id="hero"></div>
+      <div class="perf" id="perf"></div>
+    </section>
+    <section id="sec-plan"><div class="sec-hd"></div><div class="grid"></div></section>
+    <section id="sec-run"><div class="sec-hd"></div><div class="grid"></div></section>
+    <section id="sec-strength"><div class="sec-hd"></div><div class="grid"></div></section>
+    <section id="sec-other"><div class="sec-hd"></div><div class="grid"></div></section>
+    <section id="sec-recovery"><div class="sec-hd"></div><div class="grid"></div></section>
+    <section id="sec-fitness"><div class="sec-hd"></div><div class="grid"></div></section>
+    <section id="sec-daily"><div class="sec-hd"></div><div class="grid"></div></section>
+    <section id="sec-body"><div class="sec-hd"></div><div class="grid"></div></section>
+    <section id="sec-acts"><div class="sec-hd"></div><div class="card tbl" id="actTable"></div></section>
+    <footer id="footer"></footer>
+  </main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Menü"></nav>
+<div class="moresheet" id="moreSheet" hidden></div>
+<div class="pull" id="pull" aria-hidden="true"></div>
+
+<script>
+const DATA = /*__DATA__*/null;
+
+// ================================================================ Icons (eigene Linienzeichnungen)
+const ICONS = {
+  home: '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+  form: '<path d="M3 12h4l2.5-6 5 12 2.5-6h4"/>',
+  run: '<circle cx="15" cy="4.5" r="1.8"/><path d="M7 21l3.5-6 3 2.5V22M9 11.5l2.5-3.5 4 1.5 2 3.5M11.5 8 9 13l-4-1"/>',
+  strength: '<path d="M6.5 6.5v11M17.5 6.5v11M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/>',
+  other: '<circle cx="6" cy="16.5" r="3.5"/><circle cx="18" cy="16.5" r="3.5"/><path d="M6 16.5 10 9h5l3 7.5M9 6h3M12.5 9l-2 7.5h-4.5"/>',
+  recovery: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+  fitness: '<path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 17l4.5-5"/><circle cx="12" cy="17" r="1.2"/>',
+  daily: '<path d="M7 4c1.7 0 2.7 1.8 2.7 4.3S8.7 12.5 7 12.5 4.3 10.8 4.3 8.3 5.3 4 7 4zM17 9c1.7 0 2.7 1.8 2.7 4.3s-1 4.2-2.7 4.2-2.7-1.7-2.7-4.2S15.3 9 17 9zM5.5 15.5h3M15.5 20.5h3"/>',
+  body: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 9.5a4.5 4.5 0 0 1 7 0M12 9.8l1.2-1.8"/>',
+  list: '<path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>',
+  route: '<circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h7.5a3.5 3.5 0 0 0 0-7h-7a3.5 3.5 0 0 1 0-7H16"/>',
+  timer: '<circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 2M10 2.5h4"/>',
+  heart: '<path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/>',
+  hrv: '<path d="M3 12h3.5l2-4 3 9 3-12 2 7H21"/>',
+  star: '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/>',
+  gauge: '<path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 17l3.5-4.5"/>',
+  wind: '<path d="M3 8.5h10.5a3 3 0 1 0-3-3M3 12.5h15a3 3 0 1 1-3 3M3 16.5h7"/>',
+  zap: '<path d="M13 3 5 14h6l-1 7 8-11h-6z"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  tilde: '<path d="M5 13c2-3 4-3 7 0s5 3 7 0"/>',
+  alert: '<path d="M12 7v6M12 17h.01"/>',
+  info: '<path d="M12 11v6M12 7h.01"/>',
+  warn: '<path d="M12 3 2 20h20zM12 10v4M12 17h.01"/>',
+  swim: '<path d="M3 17c2 0 2-1.5 4.5-1.5S10 17 12 17s2-1.5 4.5-1.5S19 17 21 17M3 21c2 0 2-1.5 4.5-1.5S10 21 12 21s2-1.5 4.5-1.5S19 21 21 21M8 13l3-6 4 2.5M15.5 7a1.8 1.8 0 1 0 0-.01"/>',
+  more: '<circle cx="5.5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="18.5" cy="12" r="1.4"/>',
+  chev: '<path d="M6 9l6 6 6-6"/>',
+  refresh: '<path d="M12 4v12M6.5 10.5 12 16l5.5-5.5"/>',
+  walk: '<circle cx="13" cy="4.5" r="1.8"/><path d="M9 21l2.5-6.5 3 3V21M8 12l2.5-4h3l2.5 3.5M11.5 8l-1 6.5"/>',
+};
+const ico = (k, cls = 'ico') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[k] || ''}</svg>`;
+
+// ================================================================ Grundlagen
+const HASH = new URLSearchParams(location.hash.slice(1));
+const STILL = HASH.has('still');
+if (STILL) document.documentElement.classList.add('still');
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let C = {};
+function readColors() {
+  C = {};
+  for (const k of ['c1', 'c2', 'c3', 'c4', 'c5', 'ink', 'ink-2', 'muted', 'line', 'panel', 'panel-2', 'good', 'warn', 'bad', 'tip', 'tip-ink', 'accent'])
+    C[k.replace('-', '')] = css('--' + k);
+}
+const alpha = (hex, a) => {
+  const h = hex.replace('#', '');
+  const n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
+  return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`;
+};
+
+const DAILY = DATA.daily || {};
+const ACTS = DATA.activities || [];
+const LATEST = DATA.latest || {};
+const DAY_MS = 864e5;
+const toDate = s => new Date(s + 'T12:00:00Z');
+const iso = d => d.toISOString().slice(0, 10);
+const addDays = (s, n) => iso(new Date(toDate(s).getTime() + n * DAY_MS));
+const todayIso = () => { const d = new Date(); return iso(new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 12))); };
+const dayList = (a, b) => { const out = []; for (let d = a; d <= b; d = addDays(d, 1)) out.push(d); return out; };
+
+const nf = (v, dec = 0) => v == null || isNaN(v) ? null : Number(v).toLocaleString('de-DE', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+const fmtDate = s => toDate(s).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' });
+const fmtShort = s => toDate(s).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', timeZone: 'UTC' });
+const fmtLong = s => toDate(s).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const fmtWeekday = s => toDate(s).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit', timeZone: 'UTC' });
+const wd2 = s => toDate(s).toLocaleDateString('de-DE', { weekday: 'short', timeZone: 'UTC' }).slice(0, 2);
+const fmtDur = s => { if (s == null) return null; const m = Math.round(s / 60); return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`; };
+const fmtHms = s => { if (s == null) return null; s = Math.round(s); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
+  return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(x).padStart(2, '0'); };
+const fmtPace = s => s == null ? null : `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
+const sum = a => a.reduce((x, y) => x + y, 0);
+const avg = a => { const v = a.filter(x => x != null && !isNaN(x)); return v.length ? sum(v) / v.length : null; };
+const last = a => { for (let i = a.length - 1; i >= 0; i--) if (a[i] != null) return a[i]; return null; };
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const nd = '<span class="nodata">keine Daten</span>';
+const empty = t => `<div class="empty">${t}</div>`;
+
+const LABELS = {
+  hrv: { BALANCED: 'Ausgeglichen', UNBALANCED: 'Unausgeglichen', LOW: 'Niedrig', POOR: 'Schlecht', NONE: 'kein Status' },
+  ready: { PRIME: 'Optimal', HIGH: 'Hoch', MODERATE: 'Mäßig', LOW: 'Niedrig', POOR: 'Schlecht' },
+  acwr: { OPTIMAL: 'Optimal', LOW: 'Niedrig', HIGH: 'Hoch', VERY_HIGH: 'Sehr hoch' },
+  cat: { run: 'Laufen', strength: 'Kraft', bike: 'Rad', swim: 'Schwimmen', walk: 'Gehen/Wandern', other: 'Sonstiges' },
+  type: { running: 'Laufen', trail_running: 'Trailrun', treadmill_running: 'Laufband', track_running: 'Bahn', indoor_running: 'Indoor-Lauf',
+    strength_training: 'Krafttraining', cycling: 'Rad', road_biking: 'Rennrad', mountain_biking: 'MTB', indoor_cycling: 'Indoor-Rad',
+    virtual_ride: 'Virtuelles Rad', e_bike_fitness: 'E-Bike', lap_swimming: 'Schwimmbad', open_water_swimming: 'Freiwasser',
+    walking: 'Gehen', hiking: 'Wandern', yoga: 'Yoga', hiit: 'HIIT', indoor_cardio: 'Cardio', cardio: 'Cardio', elliptical: 'Crosstrainer',
+    stair_climbing: 'Treppensteigen', rowing: 'Rudern', indoor_rowing: 'Rudergerät', pilates: 'Pilates', breathwork: 'Atemübung',
+    kayaking_v2: 'Kajak', kayaking: 'Kajak', other: 'Sonstiges' },
+};
+const CAT_ICON = { run: 'run', strength: 'strength', bike: 'other', swim: 'swim', walk: 'walk', other: 'zap' };
+const tsPhrase = p => {
+  if (!p) return null;
+  const map = { PRODUCTIVE: 'Produktiv', MAINTAINING: 'Erhaltend', RECOVERY: 'Erholung', UNPRODUCTIVE: 'Unproduktiv',
+    DETRAINING: 'Leistungsverlust', PEAKING: 'Leistungshoch', OVERREACHING: 'Überlastung', STRAINED: 'Überanstrengt', NO_STATUS: 'Kein Status' };
+  const key = Object.keys(map).sort((a, b) => b.length - a.length).find(k => p.toUpperCase().startsWith(k));
+  return key ? map[key] : p;
+};
+const typeLabel = t => LABELS.type[t] || t.replace(/_/g, ' ');
+const cleanName = s => String(s || '').replace(/​/g, '');
+
+// ================================================================ Zustand
+const PERIODS = [
+  { id: 'day', label: 'Tag', days: 1, bucket: 'day' },
+  { id: 'week', label: 'Woche', days: 7, bucket: 'day' },
+  { id: 'month', label: 'Monat', days: 30, bucket: 'week' },
+  { id: '6m', label: '6 Monate', days: 182, bucket: 'week' },
+  { id: 'year', label: 'Jahr', days: 365, bucket: 'month' },
+];
+const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+const dataDays = Object.keys(DAILY).concat(ACTS.map(a => a.day)).filter(Boolean).sort();
+const LAST_DAY = dataDays.length ? (dataDays[dataDays.length - 1] > todayIso() ? todayIso() : dataDays[dataDays.length - 1]) : todayIso();
+const FIRST_DAY = dataDays.length ? dataDays[0] : LAST_DAY;
+const state = {
+  period: PERIODS.find(p => p.id === (HASH.get('period') || store.get('gd-period'))) || PERIODS[1],
+  anchor: HASH.get('date') && HASH.get('date') <= LAST_DAY ? HASH.get('date') : LAST_DAY,
+};
+
+function ranges() {
+  const n = state.period.days;
+  const start = addDays(state.anchor, -(n - 1));
+  return { start, end: state.anchor, prevStart: addDays(start, -n), prevEnd: addDays(start, -1), days: dayList(start, state.anchor) };
+}
+const val = (d, k) => DAILY[d] ? DAILY[d][k] ?? null : null;
+const series = (days, k) => days.map(d => val(d, k));
+const actsIn = (a, b, cat) => ACTS.filter(x => x.day >= a && x.day <= b && (!cat || x.cat === cat));
+
+function ma7(days, k) {
+  return days.map(d => {
+    const w = []; for (let i = 0; i < 7; i++) { const v = val(addDays(d, -i), k); if (v != null) w.push(v); }
+    return w.length >= 3 ? +(sum(w) / w.length).toFixed(1) : null;
+  });
+}
+function weekStart(s) { const d = toDate(s); const wd = (d.getUTCDay() + 6) % 7; return addDays(s, -wd); }
+function isoWeek(s) { const d = toDate(s); const t = new Date(d); t.setUTCDate(d.getUTCDate() + 3 - (d.getUTCDay() + 6) % 7);
+  const w1 = new Date(Date.UTC(t.getUTCFullYear(), 0, 4)); return 1 + Math.round(((t - w1) / DAY_MS - 3 + (w1.getUTCDay() + 6) % 7) / 7); }
+function buckets(days, mode) {
+  const map = new Map();
+  for (const d of days) {
+    const key = mode === 'day' ? d : mode === 'week' ? weekStart(d) : d.slice(0, 7);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(d);
+  }
+  return [...map.entries()].map(([key, ds]) => ({ key, days: ds,
+    label: mode === 'day' ? (days.length <= 7 ? fmtWeekday(key) : fmtShort(key)) : mode === 'week' ? 'KW ' + isoWeek(key)
+      : toDate(key + '-01').toLocaleDateString('de-DE', { month: 'short', year: '2-digit', timeZone: 'UTC' }) }));
+}
+const bucketName = () => ({ day: 'Tag', week: 'Woche', month: 'Monat' }[state.period.bucket]);
+
+// ================================================================ Charts
+const phone = () => matchMedia('(max-width: 640px)').matches;
+let charts = [];
+function chartDefaults() {
+  Chart.defaults.color = C.muted;
+  Chart.defaults.borderColor = C.line;
+  Chart.defaults.font.family = 'Manrope, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+  Chart.defaults.font.size = phone() ? 10.5 : 11.5;
+  Chart.defaults.font.weight = 500;
+  Chart.defaults.plugins.legend.display = false;
+  Object.assign(Chart.defaults.plugins.tooltip, { backgroundColor: C.tip, titleColor: C.tipink, bodyColor: alpha(C.tipink.length === 7 ? C.tipink : '#ffffff', .8),
+    padding: 12, cornerRadius: 12, boxPadding: 5, usePointStyle: true, titleFont: { weight: 700, size: 12.5 }, bodyFont: { size: 12 }, caretSize: 0 });
+  Chart.defaults.maintainAspectRatio = false;
+  if (STILL) Chart.defaults.animation = false;
+  else if (Chart.defaults.animation) Object.assign(Chart.defaults.animation, { duration: 350, easing: 'easeOutQuart' });
+}
+let hatchCache = {};
+function hatch(color) {
+  if (hatchCache[color]) return hatchCache[color];
+  const c = document.createElement('canvas'); c.width = c.height = 8;
+  const x = c.getContext('2d');
+  x.strokeStyle = color; x.lineWidth = 1.6;
+  x.beginPath(); x.moveTo(-2, 10); x.lineTo(10, -2); x.moveTo(-2, 2); x.lineTo(2, -2); x.moveTo(6, 10); x.lineTo(10, 6); x.stroke();
+  return hatchCache[color] = x.createPattern(c, 'repeat');
+}
+const areaFill = color => ctx => {
+  const { chart } = ctx; const { ctx: c, chartArea } = chart;
+  if (!chartArea) return alpha(color, .12);
+  const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+  g.addColorStop(0, alpha(color, .26)); g.addColorStop(1, alpha(color, 0));
+  return g;
+};
+
+function cardEl(grid, { title, sub, legend, span, kv }) {
+  const card = document.createElement('div'); card.className = 'card';
+  if (span) card.style.gridColumn = span;
+  card.innerHTML = `<div class="card-hd"><div><h3>${title}</h3>${sub ? `<div class="sub">${sub}</div>` : ''}${kv ? `<div class="kv">${kv}</div>` : ''}</div>` +
+    (legend ? `<div class="legend">${legend.map(l => `<span><i class="${l.line ? 'line' : ''}" style="background:${l.color}"></i>${l.label}</span>`).join('')}</div>` : '') +
+    `</div>`;
+  grid.appendChild(card);
+  return card;
+}
+function makeChart(grid, opts, config) {
+  const card = cardEl(grid, opts);
+  const box = document.createElement('div'); box.className = 'chart'; card.appendChild(box);
+  const hasData = config.data.datasets.some(ds => ds.data.some(v => v != null && (typeof v !== 'object' || v.y != null || Array.isArray(v))));
+  if (!hasData) { box.classList.add('nodata'); box.textContent = 'keine Daten'; card.querySelector('.legend')?.remove(); return; }
+  box.innerHTML = '<canvas></canvas>';
+  config.options = Object.assign({ interaction: { mode: 'index', intersect: false } }, config.options || {});
+  const sc = config.options.scales || {};
+  config.options.scales = {
+    x: Object.assign({ grid: { display: false }, border: { display: false }, ticks: phone() ? { maxRotation: 0, autoSkipPadding: 10, maxTicksLimit: 5 } : { maxRotation: 0, autoSkipPadding: 18 } }, sc.x || {}),
+    y: Object.assign({ grid: { color: alpha(C.ink.length === 7 ? C.ink : '#000000', .07), drawTicks: false }, border: { display: false, dash: [3, 4] },
+      ticks: { padding: phone() ? 4 : 8, maxTicksLimit: phone() ? 4 : 5 }, beginAtZero: true }, sc.y || {}),
+  };
+  charts.push(new Chart(box.querySelector('canvas'), config));
+}
+const bar = (label, data, color, extra = {}) => ({ type: 'bar', label, data, backgroundColor: color, borderRadius: 7, borderSkipped: 'start',
+  maxBarThickness: 30, categoryPercentage: .72, barPercentage: .9, ...extra });
+const line = (label, data, color, extra = {}) => ({ type: 'line', label, data, borderColor: color, backgroundColor: color, borderWidth: 2.4,
+  pointRadius: 0, pointHoverRadius: 5, pointHoverBorderWidth: 2, pointHoverBorderColor: C.panel, tension: .4, spanGaps: true, ...extra });
+const rawLine = (label, data, color, n) => line(label, data, alpha(color, n > 60 ? .28 : .45), { borderWidth: n > 60 ? 1 : 1.5, tension: 0, spanGaps: false,
+  pointRadius: n <= 31 ? 3 : 0, pointBackgroundColor: alpha(color, .5), pointBorderWidth: 0 });
+const tipFmt = f => ({ callbacks: { label: c => ` ${c.dataset.label}: ${c.raw == null ? '–' : f(c.raw, c)}` } });
+const stackedScales = () => ({ x: { stacked: true }, y: { stacked: true } });
+
+// ================================================================ Navigation
+const SECTIONS = [
+  ['sec-overview', 'Übersicht', 'home'], ['sec-plan', 'Plan', 'calendar'], ['sec-run', 'Laufen', 'run'], ['sec-strength', 'Kraft', 'strength'],
+  ['sec-other', 'Weitere', 'other'], ['sec-recovery', 'Erholung', 'recovery'], ['sec-fitness', 'Fitness', 'fitness'],
+  ['sec-daily', 'Alltag', 'daily'], ['sec-body', 'Körper', 'body'], ['sec-acts', 'Aktivitäten', 'list'],
+];
+const SEC_SUB = { 'sec-plan': 'Dienste und Trainings aus deinem Kalender', 'sec-run': 'Distanz, Tempo, Umfang', 'sec-strength': 'Einheiten und Sätze', 'sec-other': 'Rad, Schwimmen, Gehen, Sonstiges',
+  'sec-recovery': 'Ruhepuls, HRV, Schlaf, Body Battery', 'sec-fitness': 'VO2max, Belastung, Ausdauer', 'sec-daily': 'Schritte, Stress, Kalorien',
+  'sec-body': 'Gewicht und BMI', 'sec-acts': '' };
+// Handy: untere Menüleiste (4 Hauptbereiche + „Mehr“), einklappbare Bereiche
+const TABS = [['sec-overview', 'Übersicht', 'home'], ['sec-plan', 'Plan', 'calendar'], ['sec-run', 'Laufen', 'run'], ['sec-recovery', 'Erholung', 'recovery']];
+let collapsed = (() => { try { const v = JSON.parse(store.get('gd-collapsed')); if (Array.isArray(v)) return v; } catch (e) {} return ['sec-other', 'sec-daily', 'sec-body']; })();
+function applyCollapse() { SECTIONS.slice(1).forEach(([id]) => document.getElementById(id).classList.toggle('collapsed', collapsed.includes(id))); }
+function setCollapsed(id, on) {
+  collapsed = collapsed.filter(x => x !== id).concat(on ? [id] : []);
+  store.set('gd-collapsed', JSON.stringify(collapsed)); applyCollapse();
+  requestAnimationFrame(() => charts.forEach(c => c.resize()));
+}
+function goTo(id) {
+  if (collapsed.includes(id)) setCollapsed(id, false);
+  if (id === 'sec-overview') window.scrollTo({ top: 0, behavior: STILL ? 'auto' : 'smooth' });
+  else document.getElementById(id).scrollIntoView({ behavior: STILL ? 'auto' : 'smooth', block: 'start' });
+}
+function buildNav() {
+  document.getElementById('nav').innerHTML = '<div class="nav-label">Menü</div>' +
+    SECTIONS.map(([id, label, ic]) => `<a href="#" data-sec="${id}">${ico(ic)}<span>${label}</span></a>`).join('');
+  for (const [id, label, ic] of SECTIONS.slice(1)) {
+    const hd = document.querySelector(`#${id} .sec-hd`);
+    hd.innerHTML = `<span class="chip-ico">${ico(ic)}</span><h2>${label}</h2><span class="ssub">${SEC_SUB[id] || ''}</span><i class="chev">${ico('chev')}</i>`;
+    hd.addEventListener('click', () => { if (phone()) setCollapsed(id, !collapsed.includes(id)); });
+  }
+  applyCollapse();
+  const tabbar = document.getElementById('tabbar'), sheet = document.getElementById('moreSheet');
+  tabbar.innerHTML = TABS.map(([id, l, ic]) => `<button data-sec="${id}">${ico(ic)}<span>${l}</span></button>`).join('') + `<button data-more>${ico('more')}<span>Mehr</span></button>`;
+  sheet.innerHTML = SECTIONS.filter(s => !TABS.some(x => x[0] === s[0])).map(([id, l, ic]) => `<button data-sec="${id}">${ico(ic)}<span>${l}</span></button>`).join('');
+  const onNav = e => {
+    const b = e.target.closest('[data-sec],[data-more],a[data-sec]'); if (!b) return; e.preventDefault();
+    if (b.hasAttribute('data-more')) { sheet.hidden = !sheet.hidden; return; }
+    sheet.hidden = true; goTo(b.dataset.sec);
+  };
+  [document.getElementById('nav'), tabbar, sheet].forEach(el => el.addEventListener('click', onNav));
+  document.addEventListener('click', e => { if (!sheet.hidden && !sheet.contains(e.target) && !tabbar.contains(e.target)) sheet.hidden = true; });
+  const links = [...document.querySelectorAll('#nav a, #tabbar [data-sec], #moreSheet [data-sec]')];
+  const moreBtn = tabbar.querySelector('[data-more]');
+  const setActive = id => {
+    links.forEach(l => l.classList.toggle('active', l.dataset.sec === id));
+    moreBtn.classList.toggle('active', !TABS.some(x => x[0] === id));
+  };
+  setActive('sec-overview');
+  const obs = new IntersectionObserver(es => {
+    const vis = es.filter(e => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+    if (vis[0]) setActive(vis[0].target.id);
+  }, { rootMargin: '-10% 0px -70% 0px' });
+  SECTIONS.forEach(([id]) => obs.observe(document.getElementById(id)));
+  addEventListener('scroll', () => { if (scrollY < 120) setActive('sec-overview'); }, { passive: true });
+}
+
+// Handy als App (Home-Bildschirm): zum Neuladen nach unten ziehen
+function setupPull() {
+  const standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches;
+  if (!standalone || STILL) return;
+  const el = document.getElementById('pull'), sheet = document.getElementById('moreSheet');
+  let y0 = null, dy = 0;
+  addEventListener('touchstart', e => { y0 = scrollY <= 0 && sheet.hidden ? e.touches[0].clientY : null; dy = 0; }, { passive: true });
+  addEventListener('touchmove', e => {
+    if (y0 == null) return;
+    dy = e.touches[0].clientY - y0;
+    if (dy < 15) { el.className = 'pull'; return; }
+    const ready = dy > 90;
+    el.className = 'pull show' + (ready ? ' ready' : '');
+    el.style.transform = `translate(-50%, ${Math.min(dy, 140) * .4}px)`;
+    el.innerHTML = ico('refresh') + (ready ? 'Loslassen zum Aktualisieren' : 'Zum Aktualisieren ziehen');
+  }, { passive: true });
+  addEventListener('touchend', () => {
+    if (y0 != null && dy > 90) { el.className = 'pull show'; el.innerHTML = 'Lädt neueste Daten …'; location.reload(); }
+    else el.className = 'pull';
+    y0 = null; dy = 0;
+  });
+}
+
+// ================================================================ Kacheln
+function trend(cur, prev, { better = 'up', dec = 0, unit = '', fmt } = {}) {
+  if (cur == null || prev == null) return '<span class="d neutral">–</span>';
+  const diff = cur - prev;
+  if (Math.abs(diff) < 1e-9) return '<span class="d neutral">→ gleich</span>';
+  const up = diff > 0;
+  const cls = better === 'none' ? 'neutral' : (up === (better === 'up') ? 'good' : 'bad');
+  const txt = fmt ? fmt(Math.abs(diff)) : nf(Math.abs(diff), dec) + unit;
+  return `<span class="d ${cls}">${up ? '↑' : '↓'} ${txt}</span>`;
+}
+function periodAgg(a, b) {
+  const days = dayList(a, b);
+  const runs = actsIn(a, b, 'run'), str = actsIn(a, b, 'strength');
+  const dist = sum(runs.map(r => r.dist_km || 0));
+  const mov = sum(runs.filter(r => r.dist_km).map(r => r.moving_s || r.dur_s || 0));
+  const known = days.some(d => DAILY[d]) || actsIn(a, b).length > 0;
+  return {
+    runKm: runs.length ? dist : (known ? 0 : null), runs: known ? runs.length : null,
+    pace: dist ? mov / dist : null, strength: known ? str.length : null,
+    rhr: avg(series(days, 'rhr')), hrv: avg(series(days, 'hrv')),
+    sleep: avg(series(days, 'sleep_s')), score: avg(series(days, 'sleep_score')),
+    vo2: last(series(dayList(addDays(a, -30), b), 'vo2')), steps: avg(series(days, 'steps')), stress: avg(series(days, 'stress')),
+    ready: avg(series(days, 'ready')),
+  };
+}
+// Mini-Balken unter jeder Kachel: Tageswerte im Zeitraum (Tagesansicht: letzte 14 Tage), max. 24 Balken
+function spark(days, fn, agg = 'avg') {
+  const vals = days.map(fn);
+  const step = Math.ceil(vals.length / 24);
+  const pts = [];
+  for (let i = 0; i < vals.length; i += step) {
+    const ch = vals.slice(i, i + step).filter(v => v != null);
+    pts.push(ch.length ? (agg === 'sum' ? sum(ch) : sum(ch) / ch.length) : null);
+  }
+  const max = Math.max(...pts.filter(v => v != null), 0), min = Math.min(...pts.filter(v => v != null), max);
+  const floor = agg === 'sum' ? 0 : min - (max - min) * .6;
+  const n = pts.length;
+  return '<div class="spark" aria-hidden="true">' + pts.map((v, i) => {
+    const h = v == null || max === floor ? 12 : Math.max(12, (v - floor) / (max - floor) * 100);
+    return `<i class="${v == null ? 'none' : i === n - 1 ? 'now' : ''}" style="height:${v == null ? 12 : h}%"></i>`;
+  }).join('') + '</div>';
+}
+function renderTiles(r) {
+  const c = periodAgg(r.start, r.end), p = periodAgg(r.prevStart, r.prevEnd);
+  const isDay = state.period.id === 'day';
+  const vs = { day: 'Vortag', week: 'Vorwoche', month: 'Vormonat', '6m': 'vorige 6 Mon.', year: 'Vorjahr' }[state.period.id];
+  const sd = isDay ? dayList(addDays(r.end, -13), r.end) : r.days;
+  const runsOn = d => ACTS.filter(x => x.day === d && x.cat === 'run');
+  const T = (key, o) => trend(c[key], p[key], o) + ` <span>vs. ${vs}</span>`;
+  const A = isDay ? '' : 'Ø ';
+  const tiles = [
+    ['grp', 'Training', 'Aktivitäten im Zeitraum'],
+    ['Laufdistanz', nf(c.runKm, 1), 'km', T('runKm', { dec: 1, unit: ' km' }), 'route', d => sum(runsOn(d).map(x => x.dist_km || 0)), 'sum', true],
+    ['Läufe', c.runs, '', T('runs', {}), 'run', d => runsOn(d).length, 'sum'],
+    [A + 'Pace', fmtPace(c.pace), '/km', T('pace', { better: 'down', fmt: v => fmtPace(v) }), 'timer', d => avg(runsOn(d).map(x => x.pace)), 'avg'],
+    ['Krafteinheiten', c.strength, '', T('strength', {}), 'strength', d => ACTS.filter(x => x.day === d && x.cat === 'strength').length, 'sum'],
+    ['VO2max', nf(c.vo2, 1), '', T('vo2', { dec: 1 }), 'wind', d => val(d, 'vo2')],
+    [A + 'Schritte', nf(c.steps, 0), '', T('steps', {}), 'daily', d => val(d, 'steps')],
+    ['grp', 'Erholung', isDay ? 'Werte des Tages' : 'Tagesdurchschnitt im Zeitraum'],
+    [A + 'Ruhepuls', nf(c.rhr, 0), 'bpm', T('rhr', { better: 'down', dec: 1 }), 'heart', d => val(d, 'rhr')],
+    [A + 'HRV', nf(c.hrv, 0), 'ms', T('hrv', { dec: 1, unit: ' ms' }), 'hrv', d => val(d, 'hrv')],
+    [A + 'Schlaf', fmtDur(c.sleep), 'h', T('sleep', { fmt: v => fmtDur(v) + ' h' }), 'recovery', d => val(d, 'sleep_s')],
+    [A + 'Sleep Score', nf(c.score, 0), '', T('score', {}), 'star', d => val(d, 'sleep_score')],
+    ['Readiness', nf(c.ready, 0), '', T('ready', {}), 'gauge', d => val(d, 'ready')],
+    [A + 'Stress', nf(c.stress, 0), '', T('stress', { better: 'down' }), 'zap', d => val(d, 'stress')],
+  ];
+  document.getElementById('tiles').innerHTML = tiles.map(([k, v, u, t, ic, fn, agg, hl]) => k === 'grp' ? `<div class="grp">${v}<span>${u}</span></div>` :
+    `<div class="tile${hl ? ' hl' : ''}"><div class="hd"><div class="k">${k}</div><span class="chip-ico">${ico(ic)}</span></div>` +
+    (v == null ? '<div class="v nodata">keine Daten</div>' : `<div class="v">${v}${u ? `<small>${u}</small>` : ''}</div>`) +
+    `<div class="t">${t}</div>${spark(sd, fn, agg)}</div>`).join('');
+}
+
+// ================================================================ Form & Leistung
+const STICON = { good: 'check', ok: 'tilde', bad: 'alert', info: 'info' };
+const lastUpTo = (k, d, lookback = 400) => { for (let i = 0; i < lookback; i++) { const x = addDays(d, -i); if (x < FIRST_DAY) break; const v = val(x, k); if (v != null) return { v, d: x }; } return null; };
+const roundHalf = x => Math.round(x * 2) / 2;
+const stDot = st => `<span class="st bg-${st}">${ico(STICON[st])}</span>`;
+const base30 = (k, d) => avg(dayList(addDays(d, -30), addDays(d, -1)).map(t => val(t, k)));
+
+function formToday(d) {
+  const x = DAILY[d] || {}, f = [];
+  if (x.hrv_status) {
+    const st = x.hrv_status === 'BALANCED' ? 'good' : x.hrv_status === 'UNBALANCED' ? 'ok' : 'bad';
+    f.push({ name: 'HRV-Status', val: (LABELS.hrv[x.hrv_status] || x.hrv_status) + (x.hrv ? ` · ${x.hrv} ms` : ''), st,
+      ex: x.hrv_base_low ? `Normalbereich ${x.hrv_base_low}–${x.hrv_base_high} ms` : '' });
+  }
+  if (x.rhr != null) {
+    const base = base30('rhr', d);
+    const diff = base == null ? null : x.rhr - base;
+    f.push({ name: 'Ruhepuls', val: `${x.rhr} bpm`, st: diff == null ? 'info' : diff <= 1.5 ? 'good' : diff <= 4 ? 'ok' : 'bad',
+      ex: diff == null ? '' : `${diff > 0 ? '+' : ''}${nf(diff, 1)} ggü. 30-Tage-Schnitt` });
+  }
+  if (x.sleep_score != null || x.sleep_s != null) {
+    const st = x.sleep_score != null ? (x.sleep_score >= 75 ? 'good' : x.sleep_score >= 60 ? 'ok' : 'bad')
+      : (x.sleep_s >= 7 * 3600 ? 'good' : x.sleep_s >= 6 * 3600 ? 'ok' : 'bad');
+    f.push({ name: 'Schlaf', val: [fmtDur(x.sleep_s) && fmtDur(x.sleep_s) + ' h', x.sleep_score != null && 'Score ' + x.sleep_score].filter(Boolean).join(' · '), st });
+  }
+  if (x.bb_wake != null) f.push({ name: 'Body Battery', val: x.bb_wake, st: x.bb_wake >= 70 ? 'good' : x.bb_wake >= 45 ? 'ok' : 'bad', ex: 'beim Aufwachen' });
+  if (x.ready != null) {
+    const st = ['PRIME', 'HIGH'].includes(x.ready_level) ? 'good' : x.ready_level === 'MODERATE' ? 'ok' : x.ready_level ? 'bad' : (x.ready >= 60 ? 'good' : x.ready >= 40 ? 'ok' : 'bad');
+    f.push({ name: 'Training Readiness', val: `${x.ready}${x.ready_level ? ' · ' + (LABELS.ready[x.ready_level] || x.ready_level) : ''}`, st });
+  }
+  const bad = f.filter(i => i.st === 'bad').length, good = f.filter(i => i.st === 'good').length;
+  let v;
+  if (f.length < 2) v = ['info', 'Zu wenig Daten', 'Für diesen Tag fehlen Erholungswerte'];
+  else if (bad >= 2) v = ['bad', 'Erholung hat Vorrang', 'Heute locker bewegen oder pausieren'];
+  else if (bad === 1 || good < f.length / 2) v = ['ok', 'Mittlere Form', 'Moderat trainieren, harte Einheiten eher verschieben'];
+  else v = ['good', 'Gut erholt', 'Bereit für intensives Training oder einen langen Lauf'];
+  return { f, v };
+}
+function fitnessLong(d) {
+  const f = [];
+  const vo2 = lastUpTo('vo2', d), vo2old = lastUpTo('vo2', addDays(d, -84));
+  if (vo2) {
+    const diff = vo2old ? vo2.v - vo2old.v : null;
+    f.push({ name: 'VO2max', val: nf(vo2.v, 1), st: diff == null ? 'info' : diff >= 0.5 ? 'good' : diff <= -1 ? 'bad' : 'ok',
+      ex: diff == null ? `Stand ${fmtDate(vo2.d)}` : `${diff > 0 ? '+' : ''}${nf(diff, 1)} in 12 Wochen, ${diff >= 0.5 ? 'steigend' : diff <= -1 ? 'sinkend' : 'stabil'}` });
+  }
+  const end = lastUpTo('endurance', d), endOld = lastUpTo('endurance', addDays(d, -84));
+  const endV = end ? end.v : (d === LAST_DAY ? LATEST.endurance : null);
+  if (endV != null) {
+    const levels = LATEST.endurance_levels || [];
+    const cur = [...levels].reverse().find(l => endV >= l[1]), next = levels.find(l => l[1] > endV);
+    const diff = end && endOld ? end.v - endOld.v : null;
+    f.push({ name: 'Ausdauerwert', val: nf(endV, 0) + (cur ? ' · ' + cur[0] : ''), st: diff == null ? 'info' : diff > 50 ? 'good' : diff < -100 ? 'bad' : 'ok',
+      ex: [diff != null && `${diff > 0 ? '+' : ''}${nf(diff, 0)} in 12 Wochen`, next && `noch ${nf(next[1] - endV, 0)} bis „${next[0]}“`].filter(Boolean).join(' · ') });
+  }
+  if (LATEST.fitness_age != null) {
+    const diff = LATEST.age != null ? LATEST.fitness_age - LATEST.age : null;
+    f.push({ name: 'Fitnessalter', val: nf(LATEST.fitness_age, 1) + ' J.', st: diff == null ? 'info' : diff <= -2 ? 'good' : diff <= 2 ? 'ok' : 'bad',
+      ex: [LATEST.age != null && `tatsächlich ${LATEST.age} J.`, LATEST.fitness_age_best != null && `erreichbar ${nf(LATEST.fitness_age_best, 1)} J.`].filter(Boolean).join(' · ') });
+  }
+  const ts = lastUpTo('ts_phrase', d, 14);
+  if (ts) {
+    const p = ts.v.toUpperCase();
+    f.push({ name: 'Trainingsstatus', val: tsPhrase(ts.v),
+      st: /^(PRODUCTIVE|PEAKING)/.test(p) ? 'good' : /^(MAINTAINING|RECOVERY)/.test(p) ? 'ok' : /^NO_STATUS/.test(p) ? 'info' : 'bad' });
+  }
+  const acwr = lastUpTo('acwr_status', d, 14);
+  if (acwr) {
+    const s = acwr.v;
+    f.push({ name: 'Belastung akut/chronisch', val: LABELS.acwr[s] || s, st: s === 'OPTIMAL' ? 'good' : s === 'LOW' ? 'ok' : 'bad',
+      ex: s === 'LOW' ? 'Weniger als gewohnt, Raum für mehr' : s === 'OPTIMAL' ? 'Passt zu deinem Trainingsniveau' : 'Mehr als gewohnt, Verletzungsrisiko steigt' });
+  }
+  const runs4 = actsIn(addDays(d, -27), d, 'run').length;
+  f.push({ name: 'Läufe pro Woche', val: nf(runs4 / 4, 1), st: runs4 >= 8 ? 'good' : runs4 >= 4 ? 'ok' : 'bad',
+    ex: runs4 < 4 ? 'Unter 1 Lauf pro Woche, Laufform baut ab' : 'Schnitt der letzten 4 Wochen' });
+  const score = { good: 2, ok: 1, bad: 0 };
+  const rated = f.filter(i => i.st !== 'info');
+  const m = rated.length ? sum(rated.map(i => score[i.st])) / rated.length : null;
+  const v = m == null ? ['info', 'Zu wenig Daten', ''] : m >= 1.5 ? ['good', 'Im Aufwärtstrend', 'Die meisten Langzeitwerte entwickeln sich gut']
+    : m >= 0.9 ? ['ok', 'Stabil', 'Für Fortschritt Umfang oder Regelmäßigkeit erhöhen'] : ['bad', 'Geht zurück', 'Mehrere Langzeitwerte sinken'];
+  return { f, v };
+}
+function runCapacity(d) {
+  let runs = actsIn(addDays(d, -41), d, 'run').filter(x => x.dist_km);
+  let pause = false;
+  if (!runs.length) { runs = actsIn(addDays(d, -89), d, 'run').filter(x => x.dist_km); pause = true; }
+  if (!runs.length) return null;
+  const longest = runs.reduce((m, x) => x.dist_km > m.dist_km ? x : m);
+  const r28 = actsIn(addDays(d, -27), d, 'run').filter(x => x.dist_km);
+  const weekly = sum(r28.map(x => x.dist_km)) / 4, perWeek = r28.length / 4;
+  let factor = 1.1;
+  if (weekly >= 1.5 * longest.dist_km) factor += 0.1;
+  if (perWeek >= 2) factor += 0.1;
+  if (perWeek < 1) factor = 1.05;
+  let safe = longest.dist_km;
+  if (pause) { safe *= 0.8; factor = 1.05; }
+  return { safe: Math.round(safe * 10) / 10, max: Math.max(roundHalf(safe * factor), Math.round(safe * 10) / 10 + 0.5), longest, weekly, perWeek, pause };
+}
+
+// Höhenlinien im Hintergrund der Glas-Karte (aus dem Code erzeugt)
+function topoSvg() {
+  const W = 1200, H = 440, paths = [];
+  const centers = [[930, 70, 15, 1], [180, 430, 11, 2.3]];
+  for (const [cx, cy, n, seed] of centers) {
+    for (let i = 1; i <= n; i++) {
+      const r = i * 30, pts = [];
+      for (let k = 0; k <= 96; k++) {
+        const a = k / 96 * Math.PI * 2;
+        const rr = r * (1 + .13 * Math.sin(3 * a + seed + i * .35) + .07 * Math.sin(5 * a - seed * 2 + i * .2) + .04 * Math.cos(9 * a + i));
+        pts.push(`${(cx + rr * Math.cos(a) * 1.35).toFixed(1)},${(cy + rr * Math.sin(a)).toFixed(1)}`);
+      }
+      paths.push(`<path d="M${pts.join('L')}Z"/>`);
+    }
+  }
+  return `<svg class="topo" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g fill="none" stroke="var(--topo)" stroke-width="1.2">${paths.join('')}</g></svg>`;
+}
+function gaugeSvg(score, st) {
+  const v = score == null ? 0 : Math.max(0, Math.min(100, score));
+  return `<svg class="gauge" viewBox="0 0 240 150" role="img" aria-label="Training Readiness ${score ?? 'keine Daten'}">
+    <defs><pattern id="gh" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2" height="6" fill="currentColor" opacity=".22"/></pattern></defs>
+    <path d="M24 128 A96 96 0 0 1 216 128" fill="none" stroke="url(#gh)" stroke-width="22" stroke-linecap="round"/>
+    ${score == null ? '' : `<path d="M24 128 A96 96 0 0 1 216 128" fill="none" stroke="var(--${st === 'info' ? 'muted' : st === 'ok' ? 'warn' : st})" stroke-width="22" stroke-linecap="round" pathLength="100" stroke-dasharray="${v} 100"/>`}
+    <text class="num" x="120" y="118" text-anchor="middle">${score ?? '–'}</text>
+    </svg>`;
+}
+function metricRow(value, label, sub, cur, base, better = 'up', unit = '') {
+  let d = '<span class="md neutral">–</span>';
+  if (cur != null && base) {
+    const pct = (cur - base) / base * 100;
+    const cls = Math.abs(pct) < 1 ? 'neutral' : (pct > 0) === (better === 'up') ? 'good' : 'bad';
+    d = `<span class="md ${cls}">${pct > 0 ? '+' : ''}${nf(pct, 1)} %</span>`;
+  }
+  return `<div class="metric"><span class="mv">${value ?? '–'}</span><span class="ml">${label}<small>${sub}</small></span>${d}</div>`;
+}
+function renderHero(r) {
+  const d = r.end, x = DAILY[d] || {};
+  const ft = formToday(d);
+  const readySt = ft.f.find(i => i.name === 'Training Readiness')?.st || 'info';
+  const days = dayList(addDays(d, -20), d);
+  const ready = days.map(t => ({ t, v: val(t, 'ready'), lv: val(t, 'ready_level') }));
+  const stOf = o => o.v == null ? 'none' : ['PRIME', 'HIGH'].includes(o.lv) || (!o.lv && o.v >= 60) ? 'good' : o.lv === 'MODERATE' || (!o.lv && o.v >= 40) ? 'ok' : 'bad';
+  const colorOf = s => ({ good: 'var(--good)', ok: 'var(--warn)', bad: 'var(--bad)' }[s]);
+  const avgReady = avg(ready.map(o => o.v));
+  document.getElementById('hero').innerHTML = topoSvg() +
+    `<div class="glass"><h3>Form heute</h3><div class="sub">${d === todayIso() ? 'Heute' : fmtWeekday(d)}, Erholung und Tagesform</div>` +
+      `<div class="verdict"><span class="badge bg-${ft.v[0]}">${ico(STICON[ft.v[0]])}</span><div class="txt">${ft.v[1]}<small>${ft.v[2]}</small></div></div>` +
+      todayPlanHtml(d) +
+      (ft.f.length ? `<ul class="checks">${ft.f.map(i => `<li>${stDot(i.st)}<span>${i.name}${i.ex ? `<div class="ex">${i.ex}</div>` : ''}</span></li>`).join('')}</ul>` : '') +
+    `</div>` +
+    `<div class="glass gauge-wrap"><div class="gauge-hd"><h3>Training Readiness</h3><div class="sub">Garmin, 0 bis 100</div></div>${gaugeSvg(x.ready, readySt)}<div class="gauge-cap">${x.ready_level ? 'Stufe <b>' + (LABELS.ready[x.ready_level] || x.ready_level) + '</b>' : 'keine Daten'}${avg(ready.map(o => o.v)) != null ? ' · Ø 3 Wochen ' + nf(avg(ready.map(o => o.v)), 0) : ''}</div></div>` +
+    `<div class="glass metrics">` +
+      metricRow(x.hrv, 'HRV', 'ms, Nacht', x.hrv, base30('hrv', d), 'up') +
+      metricRow(x.rhr, 'Ruhepuls', 'bpm', x.rhr, base30('rhr', d), 'down') +
+      metricRow(fmtDur(x.sleep_s), 'Schlaf', 'Stunden', x.sleep_s, base30('sleep_s', d), 'up') +
+      metricRow(x.bb_wake, 'Body Battery', 'beim Aufwachen', x.bb_wake, base30('bb_wake', d), 'up') +
+    `</div>` +
+    `<div class="glass strip"><div class="strip-hd"><b>Readiness der letzten 3 Wochen</b><span>dunkelgrün hoch · hellgrün mäßig · rot niedrig · Prozentwerte oben ggü. deinem 30-Tage-Schnitt</span></div>` +
+      `<div class="bars">${avgReady != null ? `<div class="avgline" style="bottom:${avgReady}%"><span>Ø ${nf(avgReady, 0)}</span></div>` : ''}${ready.map(o => { const s = stOf(o); return `<div class="b ${s === 'none' ? 'none' : ''} ${o.t === d ? 'sel' : ''}" title="${fmtDate(o.t)}: ${o.v ?? 'keine Daten'}" style="height:${o.v == null ? 8 : Math.max(8, o.v)}%;${s !== 'none' ? 'background:' + colorOf(s) : ''}"></div>`; }).join('')}</div>` +
+      `<div class="bars-x">${ready.map(o => `<span>${o.t === d ? '<b>' + (o.v ?? '–') + '</b>' : toDate(o.t).getUTCDay() === 1 ? fmtShort(o.t) : ''}</span>`).join('')}</div></div>`;
+}
+function renderPerf(r) {
+  const d = r.end;
+  const fl = fitnessLong(d);
+  const verdictSm = v => `<div class="verdict-sm"><span class="badge bg-${v[0]}">${ico(STICON[v[0]])}</span><div><b>${v[1]}</b><small>${v[2]}</small></div></div>`;
+  const fit = `<div class="card"><h3>Fitness langfristig</h3><div class="sub">Entwicklung über die letzten Wochen</div>${verdictSm(fl.v)}` +
+    `<ul class="factors">${fl.f.map(i => `<li><span class="nm">${stDot(i.st)}${i.name}</span><span class="pill ${i.st}">${i.val}</span>${i.ex ? `<span class="ex">${i.ex}</span>` : ''}</li>`).join('')}</ul></div>`;
+
+  const c = runCapacity(d);
+  let cap;
+  if (!c) cap = `<div class="card cap"><h3>Wie weit kann ich gerade laufen?</h3>${empty('Keine Läufe in den letzten 90 Tagen, keine Schätzung möglich')}</div>`;
+  else {
+    const easy = LATEST.lt_pace ? [LATEST.lt_pace + 60, LATEST.lt_pace + 90] : null;
+    const pct = c.safe / c.max * 100;
+    cap = `<div class="card cap"><h3>Wie weit kann ich gerade laufen?</h3><div class="sub">Schätzung aus deinen Läufen</div>` +
+      `<div class="huge">${nf(c.safe, 1)}<small>km</small></div>` +
+      `<div class="lead">sicher machbar, mit Anstrengung bis <b>${nf(c.max, 1)} km</b></div>` +
+      `<div class="range" aria-hidden="true"><i style="width:100%;background:${hatch ? 'repeating-linear-gradient(135deg, transparent 0 4px, color-mix(in srgb, var(--accent) 45%, transparent) 4px 6px)' : ''}"></i><i style="width:${pct}%;background:var(--accent)"></i></div>` +
+      `<div class="mini"><div><div class="k">Längster Lauf ${c.pause ? '(90 Tage)' : '(6 Wochen)'}</div><div class="v">${nf(c.longest.dist_km, 1)} km · ${fmtShort(c.longest.day)}</div></div>` +
+      `<div><div class="k">Ø pro Woche (4 Wo.)</div><div class="v">${nf(c.weekly, 1)} km · ${nf(c.perWeek, 1)} Läufe</div></div>` +
+      (easy ? `<div><div class="k">Tempo für lange Läufe</div><div class="v">${fmtPace(easy[0])}–${fmtPace(easy[1])} /km</div></div>` : '') +
+      (LATEST.lt_hr ? `<div><div class="k">Laktatschwelle</div><div class="v">${fmtPace(LATEST.lt_pace)} /km · ${LATEST.lt_hr} bpm</div></div>` : '') + `</div>` +
+      `<div class="note">Faustregel, keine Garmin-Messung. „Sicher“ ist, was du zuletzt gelaufen bist${c.pause ? ' (−20 % wegen Laufpause)' : ''}; „mit Anstrengung“ +${Math.round((c.max / c.safe - 1) * 100)} % je nach Umfang und Regelmäßigkeit.</div></div>`;
+  }
+
+  const rows = [['5 km', 't5', 5], ['10 km', 't10', 10], ['Halbmarathon', 'thm', 21.0975], ['Marathon', 'tm', 42.195]].map(([n, k, km]) => {
+    const cur = lastUpTo(k, d, 60), old = lastUpTo(k, addDays(d, -Math.max(state.period.days, 28)), 60);
+    const diff = cur && old ? cur.v - old.v : null;
+    return { n, cur: cur?.v, km, diff };
+  });
+  const any = rows.some(x => x.cur != null);
+  const race = `<div class="card"><h3>Wettkampfprognosen</h3><div class="sub">Garmin, Veränderung ggü. ${state.period.days >= 28 ? 'Periodenbeginn' : 'vor 4 Wochen'}</div>` +
+    (any ? `<div class="races">${rows.map((x, i) => `<div class="race${i === 0 ? ' first' : ''}"><span class="rn">${x.n}</span>` +
+      `<span class="rp">${x.cur ? fmtPace(x.cur / x.km) + ' /km' : ''}</span><span class="rt">${fmtHms(x.cur) || '–'}</span>` +
+      `<span class="rp">${x.diff == null || x.diff === 0 ? 'unverändert' : `<span class="d ${x.diff < 0 ? 'good' : 'bad'}">${x.diff < 0 ? '↓' : '↑'} ${fmtHms(Math.abs(x.diff))}</span>`}</span></div>`).join('')}</div>`
+      : empty('keine Daten')) + `</div>`;
+  document.getElementById('perf').innerHTML = fit + cap + race;
+}
+
+// ================================================================ Trainingsplan (Google-Kalender)
+const PLAN = DATA.plan || [];
+const planOn = d => PLAN.filter(p => p.date === d);
+function sessStatus(p) {
+  const done = ACTS.some(a => a.day === p.date && a.cat === (p.kind === 'run' ? 'run' : 'strength'));
+  if (done) return 'done';
+  const t = todayIso();
+  return p.date < t ? 'missed' : p.date === t ? 'today' : 'planned';
+}
+const STT = { done: '✓ erledigt', missed: '✗ verpasst', today: 'heute', planned: 'geplant' };
+const shiftChip = s => `<span class="shift s-${esc(s.title)}">${esc(s.title)}${s.start && s.title !== 'Frei' ? `<small>${s.start}${s.end ? '–' + s.end : ''}</small>` : ''}</span>`;
+function todayPlanHtml(d) {
+  if (!PLAN.length) return '';
+  const items = planOn(d), shift = items.find(i => i.kind === 'shift'), sess = items.filter(i => i.kind !== 'shift');
+  const s = shift ? (shift.title === 'Frei' ? 'frei' : `${shift.title}dienst${shift.start ? ' ' + shift.start : ''}`) : '';
+  const head = d === todayIso() ? 'Heute' : fmtWeekday(d);
+  if (!sess.length) return `<div class="today-plan">${ico('calendar')}<div><b>${head}: Ruhetag</b>${s ? `<small>${esc(s)}</small>` : ''}</div></div>`;
+  return `<div class="today-plan">${ico(sess[0].kind === 'run' ? 'run' : 'strength')}<div><b>${head} geplant: ${sess.map(x => esc(x.kind === 'run' ? x.title : 'Gym')).join(' + ')}</b>` +
+    `<small>${[s, sess[0].when].filter(Boolean).map(esc).join(' · ')}${sess.some(x => sessStatus(x) === 'done') ? ' · ✓ erledigt' : ''}</small></div></div>`;
+}
+// Kalenderkarte: 2-Wochen- oder Monatsansicht, eigene Vor/Zurück-Navigation
+const planState = { view: store.get('gd-planview') === 'month' ? 'month' : 'weeks', shift: 0 };
+function monthHtml(first, t) {
+  const lastDay = (() => { const d = toDate(first); return iso(new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0, 12))); })();
+  const days = dayList(weekStart(first), addDays(weekStart(lastDay), 6));
+  const wd = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+  return `<div class="month-wd">${wd.map(x => `<span>${x}</span>`).join('')}</div><div class="month">` + days.map(d => {
+    const items = planOn(d), shift = items.find(i => i.kind === 'shift'), sess = items.filter(i => i.kind !== 'shift');
+    return `<div class="mday${d.slice(0, 7) !== first.slice(0, 7) ? ' out' : ''}${d === t ? ' today' : ''}"><div class="dn"><span class="num">${Number(d.slice(8))}</span>${shift ? `<span class="shift xs s-${esc(shift.title)}"><b class="sf">${esc(shift.title)}</b><b class="sa">${esc(shift.title === 'Frei' ? '' : shift.title.slice(0, 1))}</b></span>` : ''}</div><div class="msess">` +
+      sess.map(x => { const st = sessStatus(x); return `<div class="mrow ${st}" title="${esc((x.kind === 'run' ? x.title : 'Gym') + (x.when ? ' · ' + x.when : '') + ' · ' + STT[st])}">${ico(st === 'done' ? 'check' : x.kind === 'run' ? 'run' : 'strength')}<span>${esc(x.kind === 'run' ? x.title.replace(/ \+ .*/, '').replace(' min', '′') : 'Gym')}</span></div>`; }).join('') +
+      `</div></div>`;
+  }).join('') + `</div><div class="month-legend"><span>${ico('check')} erledigt (grün)</span><span>verpasst (rot)</span><span class="lg-full">Früh · Spät · Nacht · Frei aus deinem Dienstplan</span><span class="lg-short">F Früh · S Spät · N Nacht · ohne Kürzel frei</span></div>`;
+}
+function agendaHtml(start, t) {
+  return '<div class="agenda">' + [0, 7].map(o => {
+    const s = addDays(start, o);
+    return `<div class="ag-wk">KW ${isoWeek(s)} · ${fmtShort(s)} bis ${fmtShort(addDays(s, 6))}</div>` + dayList(s, addDays(s, 6)).map(d => {
+      const items = planOn(d), shift = items.find(i => i.kind === 'shift'), sess = items.filter(i => i.kind !== 'shift');
+      return `<div class="ag-day${d === t ? ' today' : ''}${d < t ? ' past' : ''}"><div class="ag-d"><small>${wd2(d)}</small><b>${Number(d.slice(8))}</b></div><div class="ag-b">` +
+        (shift ? `<div>${shiftChip(shift)}</div>` : '') +
+        (sess.length ? sess.map(x => { const st = sessStatus(x); return `<div class="ag-s ${st}">${ico(st === 'done' ? 'check' : x.kind === 'run' ? 'run' : 'strength')}<div><b>${esc(x.kind === 'run' ? x.title : 'Gym')}</b>` +
+          `<small>${[x.when, x.kind === 'gym' ? x.details?.[0] : ''].filter(Boolean).map(esc).join(' · ')}</small><span class="stt">${STT[st]}</span></div></div>`; }).join('') : '<div class="ag-rest">Ruhetag</div>') +
+        `</div></div>`;
+    }).join('');
+  }).join('') + '</div>';
+}
+function planCalendarCard(weekHtml, t) {
+  const card = document.createElement('div'); card.className = 'card'; card.style.gridColumn = FULL;
+  const base = weekStart(state.anchor);
+  let body, label;
+  if (planState.view === 'month') {
+    const a = toDate(state.anchor); const m = new Date(Date.UTC(a.getUTCFullYear(), a.getUTCMonth() + planState.shift, 1, 12));
+    const first = iso(m);
+    label = m.toLocaleDateString('de-DE', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+    body = monthHtml(first, t);
+  } else {
+    const ws = addDays(base, planState.shift * 14);
+    label = `${fmtShort(ws)} bis ${fmtShort(addDays(ws, 13))}`;
+    body = weekHtml(ws) + weekHtml(addDays(ws, 7)) + agendaHtml(ws, t);
+  }
+  card.innerHTML = `<div class="plan-hd"><div><h3>${planState.view === 'month' ? 'Monatsplan' : 'Wochenplan'}</h3><div class="sub">Dienst und geplante Einheiten; ✓ wenn Garmin an dem Tag einen Lauf bzw. ein Krafttraining aufgezeichnet hat</div></div>` +
+    `<div class="plan-ctl"><div class="seg sm" role="group" aria-label="Kalenderansicht"><button data-pv="weeks" aria-pressed="${planState.view === 'weeks'}">2 Wochen</button><button data-pv="month" aria-pressed="${planState.view === 'month'}">Monat</button></div>` +
+    `<div class="plan-nav"><button class="iconbtn" data-ps="-1" aria-label="Zurück">${'<svg class="ico" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>'}</button><span>${label}</span>` +
+    `<button class="iconbtn" data-ps="1" aria-label="Weiter"><svg class="ico" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>` +
+    (planState.shift ? `<button class="iconbtn" data-ps="0" aria-label="Heute" title="Zurück zu heute" style="width:auto;padding:0 10px;font-size:12.5px;font-weight:700">Heute</button>` : '') + `</div></div>` + body;
+  card.addEventListener('click', e => {
+    const v = e.target.closest('[data-pv]'), s = e.target.closest('[data-ps]');
+    if (v) { planState.view = v.dataset.pv; planState.shift = 0; store.set('gd-planview', planState.view); }
+    else if (s) planState.shift = s.dataset.ps === '0' ? 0 : planState.shift + Number(s.dataset.ps);
+    else return;
+    const fresh = planCalendarCard(weekHtml, t); card.replaceWith(fresh);
+  });
+  return card;
+}
+function renderPlan(r) {
+  const g = gridOf('sec-plan');
+  if (!PLAN.length) { htmlCard(g, 'Trainingsplan', empty('Noch kein Kalender verbunden: GOOGLE_CALENDAR_ICS in der .env eintragen'), '', FULL); return; }
+  const t = todayIso(), ws = weekStart(state.anchor);
+  const weekHtml = start => {
+    const days = dayList(start, addDays(start, 6));
+    return `<div class="week-hd"><b>KW ${isoWeek(start)}</b><span>${fmtShort(start)} bis ${fmtShort(days[6])}</span></div><div class="week">` + days.map(d => {
+      const items = planOn(d), shift = items.find(i => i.kind === 'shift'), sess = items.filter(i => i.kind !== 'shift');
+      return `<div class="pday${d === t ? ' today' : ''}${d < t ? ' past' : ''}"><div class="pd-h"><b>${wd2(d)}</b>${fmtShort(d)}</div>` +
+        (shift ? shiftChip(shift) : '') +
+        sess.map(x => { const st = sessStatus(x); return `<div class="sess ${st}"><span class="si">${ico(st === 'done' ? 'check' : x.kind === 'run' ? 'run' : 'strength')}</span>` +
+          `<div><b>${esc(x.kind === 'run' ? x.title : 'Gym')}</b>${x.kind === 'gym' && x.details?.[0] ? `<small class="clamp">${esc(x.details[0])}</small>` : ''}` +
+          `${x.when ? `<small class="clamp">${esc(x.when)}</small>` : ''}<span class="stt">${STT[st]}</span></div></div>`; }).join('') +
+        (!sess.length ? '<div class="rest">Ruhetag</div>' : '') + `</div>`;
+    }).join('') + `</div>`;
+  };
+  g.appendChild(planCalendarCard(weekHtml, t));
+
+  const past = PLAN.filter(p => p.kind !== 'shift' && p.date < t && p.date >= addDays(t, -28));
+  const done = past.filter(p => sessStatus(p) === 'done');
+  const part = k => { const a = past.filter(p => p.kind === k); return [a.filter(p => sessStatus(p) === 'done').length, a.length]; };
+  const [rd, rt] = part('run'), [gd, gt] = part('gym');
+  const pct = past.length ? Math.round(done.length / past.length * 100) : null;
+  const thisWeek = PLAN.filter(p => p.kind !== 'shift' && p.date >= ws && p.date <= addDays(ws, 6));
+  statCard(g, 'Plantreue', [['Letzte 4 Wochen', pct == null ? null : pct, '%'], ['Erledigt', past.length ? `${done.length}/${past.length}` : null],
+    ['Läufe', rt ? `${rd}/${rt}` : null], ['Gym', gt ? `${gd}/${gt}` : null],
+    ['Diese Woche offen', thisWeek.filter(p => ['today', 'planned'].includes(sessStatus(p))).length]],
+    'Geplante Einheiten aus dem Kalender, abgeglichen mit Garmin');
+
+  const next = PLAN.find(p => p.kind !== 'shift' && p.date >= t && sessStatus(p) !== 'done');
+  if (!next) { htmlCard(g, 'Nächste Einheit', empty('Keine weitere Einheit im Kalender')); return; }
+  const sh = planOn(next.date).find(i => i.kind === 'shift');
+  htmlCard(g, 'Nächste Einheit', `<div class="verdict-sm"><span class="badge bg-good">${ico(next.kind === 'run' ? 'run' : 'strength')}</span><div><b>${esc(next.kind === 'run' ? next.title : 'Gym')}</b>` +
+    `<small>${next.date === t ? 'Heute' : fmtWeekday(next.date)}${sh ? ' · ' + esc(sh.title === 'Frei' ? 'frei' : sh.title + 'dienst' + (sh.start ? ' ' + sh.start : '')) : ''}</small></div></div>` +
+    (next.when ? `<div class="sub" style="font-size:13px">${esc(next.when)}</div>` : '') +
+    (next.details?.length ? `<ul class="next-steps">${next.details.map(l => `<li>${esc(l)}</li>`).join('')}</ul>` : ''), 'aus deinem Kalender');
+}
+
+// ================================================================ Karten-Helfer
+function statCard(grid, title, items, sub, span) {
+  const card = cardEl(grid, { title, sub, span });
+  card.insertAdjacentHTML('beforeend', '<div class="stats">' + items.map(([k, v, u]) => `<div class="stat"><div class="k">${k}</div>` +
+    (v == null || v === '' ? `<div class="v nodata">keine Daten</div>` : `<div class="v">${v}${u ? `<small>${u}</small>` : ''}</div>`) + `</div>`).join('') + '</div>');
+  return card;
+}
+function htmlCard(grid, title, html, sub, span) { const c = cardEl(grid, { title, sub, span }); c.insertAdjacentHTML('beforeend', html); return c; }
+const gridOf = id => { const g = document.querySelector(`#${id} .grid`); g.innerHTML = ''; return g; };
+const FULL = '1 / -1';
+
+// ================================================================ Laufen
+function renderRun(r) {
+  const g = gridOf('sec-run');
+  const runs = actsIn(r.start, r.end, 'run');
+  if (!runs.length) { htmlCard(g, 'Übersicht', empty(state.period.id === 'day' ? 'Kein Lauf an diesem Tag' : 'Kein Lauf im Zeitraum'), '', FULL); return; }
+  const km = sum(runs.map(x => x.dist_km || 0));
+  const mov = sum(runs.filter(x => x.dist_km).map(x => x.moving_s || x.dur_s || 0));
+  const long = runs.reduce((m, x) => (x.dist_km || 0) > (m?.dist_km || 0) ? x : m, null);
+  const weeks = Math.max(1, r.days.length / 7);
+  statCard(g, 'Übersicht', [
+    ['Distanz', nf(km, 1), 'km'], ['Läufe', runs.length], ['Dauer', fmtDur(sum(runs.map(x => x.dur_s || 0))), 'h'], ['Ø Pace', fmtPace(km ? mov / km : null), '/km'],
+    ['Ø Herzfrequenz', nf(avg(runs.map(x => x.hr)), 0), 'bpm'], ['Höhenmeter', nf(sum(runs.map(x => x.elev || 0)), 0), 'm'], ['Long Run', long ? nf(long.dist_km, 1) : null, 'km'],
+    ...(state.period.days >= 30 ? [['Ø Woche', nf(km / weeks, 1), 'km'], ['Ø Monat', nf(km / (r.days.length / 30.44), 0), 'km']] : []),
+  ], long ? `Long Run am ${fmtDate(long.day)}: ${esc(cleanName(long.name))}` : '', FULL);
+  if (state.period.id === 'day') return;
+  const bks = buckets(r.days, state.period.bucket);
+  const sumKm = b => { const rs = runs.filter(x => b.days.includes(x.day)); return rs.length ? +sum(rs.map(x => x.dist_km || 0)).toFixed(1) : 0; };
+  const kmData = bks.map(sumKm), maxKm = Math.max(...kmData, 1);
+  makeChart(g, { title: `Laufumfang pro ${bucketName()}`, sub: 'Kilometer' }, {
+    data: { labels: bks.map(b => b.label), datasets: [
+      bar('Distanz', kmData, kmData.map(v => v === maxKm ? C.c1 : alpha(C.c1, .55))),
+      bar('Raster', kmData.map(() => maxKm), hatch(alpha(C.ink, .09)), { grouped: false, order: 2, borderRadius: 7 })] },
+    options: { plugins: { tooltip: { filter: i => i.datasetIndex === 0, callbacks: { label: c => ` ${nf(c.raw, 1)} km` } } } } });
+  if (state.period.bucket !== 'month') {
+    const mb = buckets(r.days, 'month');
+    if (mb.length > 1) makeChart(g, { title: 'Laufumfang pro Monat', sub: 'Kilometer' }, {
+      data: { labels: mb.map(b => b.label), datasets: [bar('Distanz', mb.map(sumKm), C.c1)] },
+      options: { plugins: { tooltip: tipFmt(v => nf(v, 1) + ' km') } } });
+  }
+  const roll = (xs, n = 5) => xs.map((_, i) => { const w = xs.slice(Math.max(0, i - n + 1), i + 1).filter(v => v != null); return w.length ? +(sum(w) / w.length).toFixed(1) : null; });
+  const withPace = runs.filter(x => x.pace);
+  makeChart(g, { title: 'Pace je Lauf', sub: 'min/km, oben ist schneller', legend: [{ label: 'Lauf', color: alpha(C.c1, .4) }, { label: 'Ø 5 Läufe', color: C.c1, line: true }] }, {
+    data: { labels: withPace.map(x => fmtShort(x.day)), datasets: [line('Ø 5 Läufe', roll(withPace.map(x => x.pace)), C.c1, { tension: .4 }),
+      line('Lauf', withPace.map(x => x.pace), alpha(C.c1, .35), { showLine: false, pointRadius: 3, pointBackgroundColor: alpha(C.c1, .35), pointBorderWidth: 0 })] },
+    options: { scales: { y: { reverse: true, beginAtZero: false, ticks: { callback: v => fmtPace(v), maxTicksLimit: 5 } } },
+      plugins: { tooltip: { callbacks: { label: c => { const x = withPace[c.dataIndex]; return ` ${fmtPace(x.pace)} /km · ${nf(x.dist_km, 1)} km`; },
+        title: c => cleanName(withPace[c[0].dataIndex].name) + ', ' + fmtDate(withPace[c[0].dataIndex].day), }, filter: i => i.datasetIndex === 1 } } } });
+  const withHr = runs.filter(x => x.hr);
+  makeChart(g, { title: 'Ø Herzfrequenz je Lauf', sub: 'bpm', legend: [{ label: 'Lauf', color: alpha(C.c5, .4) }, { label: 'Ø 5 Läufe', color: C.c5, line: true }] }, {
+    data: { labels: withHr.map(x => fmtShort(x.day)), datasets: [line('Ø 5 Läufe', roll(withHr.map(x => x.hr)), C.c5, { tension: .4, fill: 'start', backgroundColor: areaFill(C.c5) }),
+      line('Lauf', withHr.map(x => x.hr), alpha(C.c5, .35), { showLine: false, pointRadius: 3, pointBackgroundColor: alpha(C.c5, .35), pointBorderWidth: 0 })] },
+    options: { scales: { y: { beginAtZero: false } }, plugins: { tooltip: tipFmt(v => v + ' bpm') } } });
+}
+
+// ================================================================ Kraft
+function renderStrength(r) {
+  const g = gridOf('sec-strength');
+  const s = actsIn(r.start, r.end, 'strength');
+  if (!s.length) { htmlCard(g, 'Übersicht', empty(`Keine Krafteinheit ${state.period.id === 'day' ? 'an diesem Tag' : 'im Zeitraum'}`), '', FULL); return; }
+  const sets = s.filter(x => x.sets != null), reps = s.filter(x => x.reps != null);
+  const cats = {}; s.forEach(x => (x.exercises || []).forEach(e => cats[e] = (cats[e] || 0) + 1));
+  const top = Object.entries(cats).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const setsNote = sets.length < s.length ? `Sätze nur bei ${sets.length} von ${s.length} Einheiten erfasst (an der Uhr einzeln abschließen)` : '';
+  statCard(g, 'Übersicht', [
+    ['Einheiten', s.length], ['Dauer gesamt', fmtDur(sum(s.map(x => x.dur_s || 0))), 'h'], ['Ø Dauer', fmtDur(avg(s.map(x => x.dur_s))), 'h'],
+    ['Sätze', sets.length ? nf(sum(sets.map(x => x.sets)), 0) : 'nicht erfasst'], ['Wiederholungen', reps.length ? nf(sum(reps.map(x => x.reps)), 0) : 'nicht erfasst'],
+    ['Ø Herzfrequenz', nf(avg(s.map(x => x.hr)), 0), 'bpm'],
+  ], [top.length && 'Häufigste Übungen: ' + top.map(([k]) => k.toLowerCase().replace(/_/g, ' ')).join(', '), setsNote].filter(Boolean).join(' · '), FULL);
+  if (state.period.id === 'day') return;
+  const bks = buckets(r.days, state.period.bucket);
+  makeChart(g, { title: `Krafttraining pro ${bucketName()}`, sub: 'Minuten' }, {
+    data: { labels: bks.map(b => b.label), datasets: [bar('Dauer', bks.map(b => Math.round(sum(s.filter(x => b.days.includes(x.day)).map(x => (x.dur_s || 0) / 60)))), C.c2)] },
+    options: { plugins: { tooltip: { callbacks: { label: c => { const n = s.filter(x => bks[c.dataIndex].days.includes(x.day)).length; return ` ${c.raw} min · ${n} Einheit${n === 1 ? '' : 'en'}`; } } } } } });
+  makeChart(g, { title: 'Ø Herzfrequenz je Einheit', sub: 'bpm' }, {
+    data: { labels: s.map(x => fmtShort(x.day)), datasets: [line('Ø HF', s.map(x => x.hr), C.c5, { pointRadius: s.length > 30 ? 0 : 3.5, pointBackgroundColor: C.panel, pointBorderWidth: 2, tension: .35, fill: 'start', backgroundColor: areaFill(C.c5) })] },
+    options: { scales: { y: { beginAtZero: false } }, plugins: { tooltip: tipFmt(v => v + ' bpm') } } });
+  if (sets.length) makeChart(g, { title: `Sätze pro ${bucketName()}`, sub: 'aktive Sätze laut Uhr' }, {
+    data: { labels: bks.map(b => b.label), datasets: [bar('Sätze', bks.map(b => sum(sets.filter(x => b.days.includes(x.day)).map(x => x.sets))), C.c2)] },
+    options: { plugins: { tooltip: tipFmt(v => v + ' Sätze') } } });
+}
+
+// ================================================================ Weitere Aktivitäten
+function renderOther(r) {
+  const g = gridOf('sec-other');
+  const o = actsIn(r.start, r.end).filter(x => !['run', 'strength'].includes(x.cat));
+  if (!o.length) { htmlCard(g, 'Übersicht', empty('Keine weiteren Aktivitäten im Zeitraum'), '', FULL); return; }
+  const groups = {}; o.forEach(x => (groups[x.cat] = groups[x.cat] || []).push(x));
+  const rows = Object.entries(groups).sort((a, b) => b[1].length - a[1].length).map(([cat, xs]) => {
+    const types = [...new Set(xs.map(x => typeLabel(x.type)))].join(', ');
+    const km = sum(xs.map(x => x.dist_km || 0));
+    return `<tr><td><div class="act"><span class="chip-ico">${ico(CAT_ICON[cat])}</span><div>${LABELS.cat[cat]}<div class="sub" style="font-weight:500">${esc(types)}</div></div></div></td>` +
+      `<td class="num">${xs.length}</td><td class="num">${km ? nf(km, 1) + ' km' : '–'}</td><td class="num">${fmtDur(sum(xs.map(x => x.dur_s || 0)))} h</td>` +
+      `<td class="num">${nf(sum(xs.map(x => x.kcal || 0)), 0)}</td></tr>`;
+  }).join('');
+  htmlCard(g, 'Übersicht', `<div class="tbl"><table><thead><tr><th>Kategorie</th><th class="num">Anzahl</th><th class="num">Distanz</th><th class="num">Dauer</th><th class="num">kcal</th></tr></thead><tbody>${rows}</tbody></table></div>`, '', FULL);
+}
+
+// ================================================================ Erholung
+function trendChart(g, r, key, title, unit, color, opts = {}) {
+  const n = r.days.length;
+  const pa = avg(series(r.days, key)), pb = avg(series(dayList(addDays(r.start, -n), addDays(r.start, -1)), key));
+  const fmtK = opts.fmt || (v => nf(v, 1));
+  const kv = pa == null ? null : `${fmtK(pa).replace(/ .*/, '')}<small>Ø ${unit.split(',')[0]}${pb != null ? ' · ' + trend(pa, pb, { better: opts.better || 'up', dec: 1 }) : ''}</small>`;
+  if (n > 90) {
+    const wb = buckets(r.days, 'week');
+    const wk = wb.map(b => { const a = avg(series(b.days, key)); return a == null ? null : +a.toFixed(1); });
+    // mittlere 60 % der Woche (20.-80. Perzentil): zeigt die Streuung ohne einzelne Ausreißer
+    const q = (b, p) => { const v = series(b.days, key).filter(x => x != null).sort((x, y) => x - y); if (!v.length) return null;
+      const i = (v.length - 1) * p, lo = Math.floor(i); return +(v[lo] + (v[Math.ceil(i)] - v[lo]) * (i - lo)).toFixed(1); };
+    const lo = wb.map(b => q(b, .2)), hi = wb.map(b => q(b, .8));
+    makeChart(g, { title, kv, sub: unit + ', pro Woche', legend: [{ label: 'Wochenschnitt', color, line: true }, { label: 'übliche Spanne', color: alpha(color, .18) }] }, {
+      data: { labels: wb.map(b => b.label), datasets: [
+        line('Wochenschnitt', wk, color, { order: 0 }),
+        line('max', hi, 'transparent', { fill: '+1', backgroundColor: alpha(color, .1), pointHoverRadius: 0, order: 1, tension: .4 }),
+        line('min', lo, 'transparent', { pointHoverRadius: 0, order: 1, tension: .4 })] },
+      options: { scales: { y: { beginAtZero: false, ...(opts.y || {}) } }, plugins: { tooltip: { filter: i => i.datasetIndex === 0,
+        callbacks: { label: c => ` Ø ${(opts.fmt || (v => nf(v, 1)))(c.raw)} · meist ${nf(lo[c.dataIndex], 0) ?? '–'} bis ${nf(hi[c.dataIndex], 0) ?? '–'}` } } } } });
+    return;
+  }
+  makeChart(g, { title, kv, sub: unit, legend: [{ label: 'Tageswert', color: alpha(color, .5), line: true }, { label: 'Ø 7 Tage', color, line: true }] }, {
+    data: { labels: r.days.map(fmtShort), datasets: [line('Ø 7 Tage', ma7(r.days, key), color, { fill: 'start', backgroundColor: areaFill(color) }),
+      rawLine('Tageswert', series(r.days, key), color, n)] },
+    options: { scales: { y: { beginAtZero: false, ...(opts.y || {}) } }, plugins: { tooltip: tipFmt(opts.fmt || (v => nf(v, 1) + ' ' + unit)) } } });
+}
+function sleepPhases(d) {
+  const x = DAILY[d] || {};
+  const ph = [['Tief', x.deep_s, C.c4], ['REM', x.rem_s, alpha(C.c4, .7)], ['Leicht', x.light_s, alpha(C.c4, .38)], ['Wach', x.awake_s, alpha(C.ink, .16)]];
+  const tot = sum(ph.map(p => p[1] || 0));
+  if (!tot) return nd;
+  return `<div class="phase-bar">${ph.filter(p => p[1]).map(p => `<div title="${p[0]}" style="flex:${p[1]};background:${p[2]}"></div>`).join('')}</div>` +
+    `<div class="legend">${ph.map(p => `<span><i style="background:${p[2]}"></i>${p[0]} ${fmtDur(p[1]) || '–'} h</span>`).join('')}</div>`;
+}
+function renderRecovery(r) {
+  const g = gridOf('sec-recovery');
+  if (state.period.id === 'day') {
+    const d = r.end, x = DAILY[d] || {};
+    statCard(g, 'Herz & Nervensystem', [['Ruhepuls', x.rhr, 'bpm'], ['HRV (Nacht)', x.hrv, 'ms'], ['HRV-Status', LABELS.hrv[x.hrv_status] || x.hrv_status],
+      ['HRV Ø 7 Tage', x.hrv_week, 'ms'], ['Readiness', x.ready, x.ready_level ? (LABELS.ready[x.ready_level] || x.ready_level) : '']]);
+    statCard(g, 'Body Battery', [['Höchstwert', x.bb_high], ['Tiefstwert', x.bb_low], ['Beim Aufwachen', x.bb_wake], ['Geladen', x.bb_charged != null ? '+' + x.bb_charged : null], ['Verbraucht', x.bb_drained != null ? '−' + x.bb_drained : null]]);
+    const c = statCard(g, 'Schlaf', [['Dauer', fmtDur(x.sleep_s), 'h'], ['Sleep Score', x.sleep_score],
+      ['Zeitraum', x.sleep_start ? new Date(x.sleep_start).toISOString().slice(11, 16) + '–' + new Date(x.sleep_end).toISOString().slice(11, 16) : null]]);
+    c.insertAdjacentHTML('beforeend', sleepPhases(d));
+    return;
+  }
+  trendChart(g, r, 'rhr', 'Ruhepuls', 'bpm', C.c5, { fmt: v => nf(v, 1) + ' bpm', better: 'down' });
+  trendChart(g, r, 'hrv', 'HRV (Nachtdurchschnitt)', 'ms', C.c1, { fmt: v => nf(v, 1) + ' ms' });
+  const long = r.days.length > 60;
+  const sb = buckets(r.days, long ? 'week' : 'day');
+  const h = k => sb.map(b => { const a = avg(series(b.days, k)); return a == null ? null : +(a / 3600).toFixed(2); });
+  const maSleep = long ? h('sleep_s') : ma7(r.days, 'sleep_s').map(v => v == null ? null : +(v / 3600).toFixed(2));
+  const thin = {};
+  makeChart(g, { title: 'Schlafdauer & Phasen', sub: long ? 'Stunden, Ø pro Nacht je Woche' : 'Stunden', legend: [
+    { label: 'Tief', color: C.c4 }, { label: 'REM', color: alpha(C.c4, .7) }, { label: 'Leicht', color: alpha(C.c4, .38) }, { label: 'Wach', color: alpha(C.ink, .16) }, ...(long ? [] : [{ label: 'Ø 7 Tage', color: C.ink, line: true }])] }, {
+    data: { labels: sb.map(b => b.label), datasets: [
+      ...(long ? [] : [line('Ø 7 Tage', maSleep, C.ink, { order: 0, borderWidth: 2 })]),
+      bar('Tief', h('deep_s'), C.c4, { stack: 's', borderRadius: 0, order: 1 }), bar('REM', h('rem_s'), alpha(C.c4, .7), { stack: 's', borderRadius: 0, order: 1 }),
+      bar('Leicht', h('light_s'), alpha(C.c4, .38), { stack: 's', borderRadius: 0, order: 1 }), bar('Wach', h('awake_s'), alpha(C.ink, .16), { stack: 's', borderRadius: { topLeft: 4, topRight: 4 }, order: 1 })] },
+    options: { scales: stackedScales(), plugins: { tooltip: tipFmt(v => fmtDur(v * 3600) + ' h') } } });
+  trendChart(g, r, 'sleep_score', 'Sleep Score', 'Punkte', C.c4, { y: { suggestedMax: 100 }, fmt: v => nf(v, 0) });
+  makeChart(g, { title: 'Body Battery', sub: long ? 'Ø Tiefst- bis Ø Höchstwert je Woche' : 'Spanne Tiefst- bis Höchstwert pro Tag' }, {
+    data: { labels: sb.map(b => b.label), datasets: [bar('Spanne', sb.map(b => { const hi = avg(series(b.days, 'bb_high')), lo = avg(series(b.days, 'bb_low'));
+      return hi == null ? null : [Math.round(lo ?? 0), Math.round(hi)]; }), alpha(C.c1, .75), { borderSkipped: false, borderRadius: 6 })] },
+    options: { scales: { y: { max: 100 } }, plugins: { tooltip: { callbacks: { label: c => c.raw ? ` ${c.raw[0]} bis ${c.raw[1]}` : '' } } } } });
+}
+
+// ================================================================ Fitness
+function renderFitness(r) {
+  const g = gridOf('sec-fitness');
+  const days = r.days;
+  const lastIn = k => last(series(days, k));
+  const statusDay = [...days].reverse().find(d => val(d, 'ts_phrase'));
+  statCard(g, 'Aktueller Stand', [
+    ['VO2max', nf(lastIn('vo2'), 1)], ['Ausdauerwert', nf(lastIn('endurance') ?? (r.end === LAST_DAY ? LATEST.endurance : null), 0)],
+    ['Trainingsstatus', statusDay ? tsPhrase(val(statusDay, 'ts_phrase')) : null],
+    ['Akute Belastung', nf(lastIn('acute'), 0)], ['Chronische Belastung', nf(lastIn('chronic'), 0)],
+    ['Verhältnis', nf(lastIn('acwr'), 1), lastIn('acwr_status') ? (LABELS.acwr[lastIn('acwr_status')] || lastIn('acwr_status')) : ''],
+    ['Aerob niedrig', nf(lastIn('load_low'), 0), '4 Wo.'], ['Aerob hoch', nf(lastIn('load_high'), 0), '4 Wo.'], ['Anaerob', nf(lastIn('load_ana'), 0), '4 Wo.'],
+  ], statusDay ? 'Stand ' + fmtDate(statusDay) : '', FULL);
+  if (state.period.id === 'day') return;
+  const n = days.length;
+  makeChart(g, { title: 'VO2max' }, {
+    data: { labels: days.map(fmtShort), datasets: [line('VO2max', series(days, 'vo2'), C.c1, { tension: .3, pointRadius: n <= 31 ? 3 : 0, fill: 'start', backgroundColor: areaFill(C.c1) })] },
+    options: { scales: { y: { beginAtZero: false } }, plugins: { tooltip: tipFmt(v => nf(v, 1)) } } });
+  makeChart(g, { title: 'Ausdauerwert', sub: 'Garmin Endurance Score' }, {
+    data: { labels: days.map(fmtShort), datasets: [line('Ausdauerwert', series(days, 'endurance'), C.c4, { tension: .3, fill: 'start', backgroundColor: areaFill(C.c4) })] },
+    options: { scales: { y: { beginAtZero: false } }, plugins: { tooltip: tipFmt(v => nf(v, 0)) } } });
+  makeChart(g, { title: 'Akute & chronische Belastung', legend: [{ label: 'Akut (7 Tage)', color: C.c3, line: true }, { label: 'Chronisch (28 Tage)', color: C.c2, line: true }] }, {
+    data: { labels: days.map(fmtShort), datasets: [line('Akut', series(days, 'acute'), C.c3, { fill: 'start', backgroundColor: areaFill(C.c3) }), line('Chronisch', series(days, 'chronic'), C.c2)] },
+    options: { plugins: { tooltip: tipFmt(v => nf(v, 0)) } } });
+  trendChart(g, r, 'ready', 'Training Readiness', 'Punkte', C.c1, { y: { suggestedMin: 0, suggestedMax: 100 }, fmt: v => nf(v, 0) });
+}
+
+// ================================================================ Alltag
+function renderDaily(r) {
+  const g = gridOf('sec-daily');
+  const days = r.days;
+  if (state.period.id === 'day') {
+    const x = DAILY[r.end] || {};
+    const im = x.im_mod != null ? x.im_mod + 2 * (x.im_vig || 0) : null;
+    statCard(g, 'Tageswerte', [['Schritte', nf(x.steps, 0), x.step_goal ? '/ ' + nf(x.step_goal, 0) : ''], ['Distanz', nf(x.dist_km, 1), 'km'],
+      ['Kalorien', nf(x.kcal, 0), 'kcal'], ['Aktive Kalorien', nf(x.kcal_active, 0), 'kcal'], ['Intensitätsminuten', im, 'min'],
+      ['Ø Stress', x.stress], ['Max. Stress', x.stress_max], ['Stockwerke', x.floors]], '', FULL);
+    return;
+  }
+  const bks = buckets(days, state.period.bucket);
+  const isDayBucket = state.period.bucket === 'day';
+  const avgB = (b, k) => { const a = avg(series(b.days, k)); return a == null ? null : Math.round(a); };
+  const stepsData = bks.map(b => avgB(b, 'steps')), goalData = bks.map(b => avgB(b, 'step_goal'));
+  const ghost = bks.map((b, i) => Math.max(stepsData[i] || 0, goalData[i] || 0) || null);
+  makeChart(g, { title: isDayBucket ? 'Schritte' : `Schritte, Ø pro Tag je ${bucketName()}`, legend: [{ label: 'Schritte', color: C.c1 }, { label: 'Ziel (schraffiert)', color: alpha(C.ink, .25) }] }, {
+    data: { labels: bks.map(b => b.label), datasets: [
+      bar('Schritte', stepsData, stepsData.map((v, i) => v != null && goalData[i] && v >= goalData[i] ? C.c1 : alpha(C.c1, .5)), { order: 1 }),
+      bar('Ziel', ghost, hatch(alpha(C.ink, .14)), { grouped: false, order: 2 })] },
+    options: { plugins: { tooltip: { callbacks: { label: c => c.datasetIndex === 0 ? ` Schritte: ${nf(c.raw, 0) ?? '–'}` : ` Ziel: ${nf(goalData[c.dataIndex], 0) ?? '–'}` } } } } });
+  trendChart(g, r, 'stress', 'Ø Stress', 'Stresslevel 0 bis 100', C.c3, { fmt: v => nf(v, 0), better: 'down' });
+  const imB = buckets(days, isDayBucket ? 'day' : 'week');
+  makeChart(g, { title: isDayBucket ? 'Intensitätsminuten pro Tag' : 'Intensitätsminuten pro Woche', sub: 'mäßig + 2 × intensiv', legend: [{ label: 'Mäßig', color: alpha(C.c1, .45) }, { label: 'Intensiv ×2', color: C.c1 }] }, {
+    data: { labels: imB.map(b => b.label), datasets: [
+      bar('Mäßig', imB.map(b => { const v = series(b.days, 'im_mod').filter(x => x != null); return v.length ? sum(v) : null; }), alpha(C.c1, .45), { stack: 'i', borderRadius: 0 }),
+      bar('Intensiv ×2', imB.map(b => { const v = series(b.days, 'im_vig').filter(x => x != null); return v.length ? 2 * sum(v) : null; }), C.c1, { stack: 'i', borderRadius: { topLeft: 6, topRight: 6 } })] },
+    options: { scales: stackedScales(), plugins: { tooltip: tipFmt(v => v + ' min') } } });
+  const kcal = bks.map(b => avgB(b, 'kcal')), act = bks.map(b => avgB(b, 'kcal_active'));
+  makeChart(g, { title: isDayBucket ? 'Kalorien' : 'Kalorien, Ø pro Tag', sub: 'kcal', legend: [{ label: 'Grundumsatz', color: alpha(C.c3, .35) }, { label: 'Aktiv', color: C.c3 }] }, {
+    data: { labels: bks.map(b => b.label), datasets: [
+      bar('Aktiv', act, C.c3, { stack: 'k', borderRadius: 0 }),
+      bar('Grundumsatz', kcal.map((v, i) => v == null ? null : v - (act[i] || 0)), alpha(C.c3, .32), { stack: 'k', borderRadius: { topLeft: 6, topRight: 6 } })] },
+    options: { scales: stackedScales(), plugins: { tooltip: tipFmt(v => nf(v, 0) + ' kcal') } } });
+}
+
+// ================================================================ Körper
+function renderBody(r) {
+  const g = gridOf('sec-body');
+  const days = r.days;
+  const lastDay = [...dayList(FIRST_DAY, r.end)].reverse().find(d => val(d, 'weight') != null);
+  const x = lastDay ? DAILY[lastDay] : {};
+  statCard(g, 'Letzte Messung', [['Gewicht', nf(x.weight, 1), 'kg'], ['BMI', nf(x.bmi, 1)]],
+    lastDay ? 'Gemessen am ' + fmtDate(lastDay) : 'Keine Waage oder Messung in Garmin Connect erfasst', FULL);
+  if (state.period.id === 'day') return;
+  makeChart(g, { title: 'Gewicht', sub: 'kg' }, {
+    data: { labels: days.map(fmtShort), datasets: [line('Gewicht', series(days, 'weight'), C.c2, { tension: .3, pointRadius: 4, pointBackgroundColor: C.panel, pointBorderWidth: 2 })] },
+    options: { scales: { y: { beginAtZero: false } }, plugins: { tooltip: tipFmt(v => nf(v, 1) + ' kg') } } });
+}
+
+// ================================================================ Aktivitätenliste
+function renderActs(r) {
+  const a = actsIn(r.start, r.end).slice().reverse();
+  document.querySelector('#sec-acts .sec-hd .ssub').textContent = a.length ? `${a.length} im Zeitraum` : '';
+  const box = document.getElementById('actTable');
+  if (!a.length) { box.innerHTML = empty(state.period.id === 'day' ? 'Keine Aktivität an diesem Tag' : 'Keine Aktivitäten im Zeitraum'); return; }
+  const max = 100;
+  box.innerHTML = `<table><thead><tr><th>Aktivität</th><th>Datum</th><th class="num">Distanz</th><th class="num">Dauer</th><th class="num">Pace</th>` +
+    `<th class="num">Ø HF</th><th class="num">Höhenmeter</th><th class="num">Sätze/Wdh.</th><th class="num">kcal</th></tr></thead><tbody>` +
+    a.slice(0, max).map(x => `<tr><td><div class="act"><span class="chip-ico">${ico(CAT_ICON[x.cat])}</span><span>${esc(cleanName(x.name) || typeLabel(x.type))}</span> <span class="tag">${typeLabel(x.type)}</span></div></td>` +
+      `<td>${fmtWeekday(x.day)}, ${x.time || ''}</td>` +
+      `<td class="num">${x.dist_km ? nf(x.dist_km, 2) + ' km' : '–'}</td><td class="num">${fmtHms(x.dur_s) || '–'}</td>` +
+      `<td class="num">${x.pace ? fmtPace(x.pace) + ' /km' : '–'}</td><td class="num">${x.hr || '–'}</td><td class="num">${x.elev != null && x.cat !== 'strength' ? nf(x.elev, 0) + ' m' : '–'}</td>` +
+      `<td class="num">${x.sets ? x.sets + (x.reps ? ' / ' + x.reps : '') : x.sets_unknown ? '<span class="nodata">nicht erfasst</span>' : '–'}</td><td class="num">${nf(x.kcal, 0) || '–'}</td></tr>`).join('') +
+    `</tbody></table>${a.length > max ? `<div class="more">und ${a.length - max} weitere</div>` : ''}` +
+    // Handy: Karten statt Tabelle, erst 8, dann „Alle anzeigen“
+    `<div class="act-cards">${a.slice(0, max).map((x, i) => {
+      const vals = [x.dist_km ? `${nf(x.dist_km, 2)}<small>km</small>` : '', fmtHms(x.dur_s), x.pace ? `${fmtPace(x.pace)}<small>/km</small>` : '',
+        x.hr ? `${x.hr}<small>bpm</small>` : '', x.sets ? `${x.sets}<small>Sätze</small>` : ''].filter(Boolean);
+      return `<div class="acard${i >= 8 ? ' extra' : ''}"><span class="chip-ico">${ico(CAT_ICON[x.cat])}</span><div><b>${esc(cleanName(x.name) || typeLabel(x.type))}</b>` +
+        `<small>${fmtWeekday(x.day)}${x.time ? ', ' + x.time : ''} · ${typeLabel(x.type)}</small>${vals.length ? `<div class="ac-v">${vals.map(v => `<span>${v}</span>`).join('')}</div>` : ''}</div></div>`;
+    }).join('')}${a.length > 8 ? `<button class="show-all">Alle ${Math.min(a.length, max)} anzeigen</button>` : ''}</div>`;
+  box.onclick = e => { const b = e.target.closest('.show-all'); if (b) { box.querySelector('.act-cards').classList.add('all'); b.remove(); } };
+}
+
+// ================================================================ Wochenziele (Seitenleiste)
+function renderGoals() {
+  const end = state.anchor, ws = weekStart(end), days = dayList(ws, end);
+  const km = sum(actsIn(ws, end, 'run').map(x => x.dist_km || 0));
+  const prev4 = [1, 2, 3, 4].map(i => sum(actsIn(addDays(ws, -7 * i), addDays(ws, -7 * i + 6), 'run').map(x => x.dist_km || 0)));
+  const kmGoal = Math.max(5, Math.ceil(avg(prev4) || 0));
+  const im = sum(days.map(d => (val(d, 'im_mod') || 0) + 2 * (val(d, 'im_vig') || 0)));
+  const imGoal = last(series(days, 'im_goal')) || 150;
+  const str = actsIn(ws, end, 'strength').length;
+  const row = (label, cur, goal, unit) => `<div class="goal"><div class="gl"><span>${label}</span><span><b>${cur}</b> / ${goal}${unit}</span></div>` +
+    `<div class="gt"><i style="width:${Math.min(100, goal ? Number(String(cur).replace(',', '.')) / goal * 100 : 0)}%"></i></div></div>`;
+  document.getElementById('goals').innerHTML = `<h4>Diese Woche <span>KW ${isoWeek(end)}</span></h4>` +
+    row('Laufen', nf(km, 1), kmGoal, ' km') + row('Intensität', im, imGoal, ' min') + row('Kraft', str, 3, '×');
+}
+
+// ================================================================ Rahmen
+function renderFrame() {
+  const s = DATA.sync || {};
+  const gen = new Date(DATA.generated);
+  const name = (s.name || '').split(' ')[0];
+  const h = new Date().getHours();
+  const greet = h < 11 ? 'Guten Morgen' : h < 18 ? 'Hallo' : 'Guten Abend';
+  document.getElementById('hello').innerHTML = `${greet}${name ? ', ' + esc(name) : ''}<span>.</span>`;
+  document.getElementById('me').innerHTML = `<span class="av">${esc((name || 'Ich').slice(0, 1).toUpperCase())}</span><div><b>${esc(name || 'Mein Profil')}</b><small>Garmin Connect</small></div>`;
+  document.getElementById('standMini').textContent = 'Stand ' + gen.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+  document.getElementById('syncInfo').innerHTML = `Aktualisiert<br><b>${gen.toLocaleString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</b>`;
+  const msgs = [];
+  if (s.last_error === 'login_2fa') msgs.push('Garmin verlangt eine neue Anmeldung mit 2FA-Code. Bitte einmal <b>Dashboard aktualisieren.bat</b> doppelklicken.');
+  else if (s.last_error) msgs.push(`Letzte Aktualisierung fehlgeschlagen (${esc(s.last_error)}). Bitte einmal <b>Dashboard aktualisieren.bat</b> doppelklicken.`);
+  const ageDays = (Date.now() - gen.getTime()) / DAY_MS;
+  if (ageDays > 2 && !STILL) msgs.push(`Diese Daten sind ${Math.floor(ageDays)} Tage alt. Sie werden beim nächsten Lauf (Autostart oder Doppelklick auf die .bat) aktualisiert.`);
+  document.getElementById('banner').innerHTML = msgs.map(m => `<div class="banner">${ico('warn')}<span>${m}</span></div>`).join('');
+
+  const SRC = { summary: 'Tageszusammenfassung', sleep: 'Schlaf', training_status: 'Trainingsstatus', hrv: 'HRV', readiness: 'Training Readiness',
+    vo2max: 'VO2max', race: 'Wettkampfprognosen', body: 'Körperzusammensetzung', activities: 'Aktivitäten', exercise_sets: 'Kraft-Sätze',
+    endurance: 'Ausdauerwert', endurance_day: 'Ausdauerwert (aktuell)', fitness_age: 'Fitnessalter', lactate: 'Laktatschwelle' };
+  const rows = Object.entries(DATA.sources || {}).map(([k, v]) =>
+    `<tr><td>${SRC[k] || k}</td><td class="num">${v.ok || 0}</td><td class="num">${v.empty || 0}</td><td class="num">${v.error || 0}</td></tr>`).join('');
+  document.getElementById('footer').innerHTML =
+    `Letzte Aktualisierung: <b>${gen.toLocaleString('de-DE', { dateStyle: 'full', timeStyle: 'short' })}</b> · Daten vom ${fmtDate(FIRST_DAY)} bis ${fmtDate(LAST_DAY)}` +
+    (rows ? `<details><summary>Datenquellen (Tage mit Daten / ohne Daten / Fehler)</summary><table><thead><tr><th>Quelle</th><th class="num">Daten</th><th class="num">leer</th><th class="num">Fehler</th></tr></thead><tbody>${rows}</tbody></table></details>` : '');
+}
+
+// ================================================================ Steuerung
+function render() {
+  charts.forEach(c => c.destroy()); charts = []; hatchCache = {};
+  readColors(); chartDefaults();
+  const r = ranges();
+  document.querySelectorAll('#periods button').forEach(b => b.setAttribute('aria-pressed', b.dataset.id === state.period.id));
+  document.querySelectorAll('[data-theme-set]').forEach(b => b.setAttribute('aria-pressed', b.dataset.themeSet === document.documentElement.dataset.theme));
+  const inp = document.getElementById('anchor'); inp.value = state.anchor; inp.max = LAST_DAY; inp.min = FIRST_DAY;
+  document.getElementById('next').disabled = state.anchor >= LAST_DAY;
+  document.getElementById('prev').disabled = r.start <= FIRST_DAY;
+  document.getElementById('rangeLabel').textContent = state.period.id === 'day'
+    ? toDate(r.end).toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+    : `${fmtLong(r.start)} bis ${fmtLong(r.end)} · verglichen mit den ${state.period.days} Tagen davor`;
+  renderTiles(r); renderHero(r); renderPerf(r); renderGoals(); renderPlan(r);
+  renderRun(r); renderStrength(r); renderOther(r); renderRecovery(r); renderFitness(r); renderDaily(r); renderBody(r); renderActs(r);
+  // ungerade Kartenzahl: letzte Karte über die volle Breite, damit keine Lücke bleibt
+  document.querySelectorAll('section .grid').forEach(g => {
+    const half = [...g.children].filter(c => !c.style.gridColumn);
+    if (half.length % 2) half[half.length - 1].style.gridColumn = FULL;
+  });
+}
+document.getElementById('periods').innerHTML = PERIODS.map(p => `<button data-id="${p.id}">${p.label}</button>`).join('');
+document.getElementById('periods').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  state.period = PERIODS.find(p => p.id === b.dataset.id); store.set('gd-period', state.period.id); render();
+});
+document.querySelectorAll('[data-theme-set]').forEach(b => b.addEventListener('click', () => {
+  document.documentElement.dataset.theme = b.dataset.themeSet; store.set('gd-theme', b.dataset.themeSet); render();
+}));
+const shift = dir => { let a = addDays(state.anchor, dir * state.period.days); if (a > LAST_DAY) a = LAST_DAY; if (a < FIRST_DAY) a = FIRST_DAY; state.anchor = a; render(); };
+document.getElementById('prev').onclick = () => shift(-1);
+document.getElementById('next').onclick = () => shift(1);
+document.getElementById('anchor').onchange = e => { if (e.target.value) { state.anchor = e.target.value > LAST_DAY ? LAST_DAY : e.target.value; render(); } };
+buildNav();
+renderFrame();
+setupPull();
+render();
+// Wechsel PC-Fenster <-> Handybreite: neu zeichnen
+matchMedia('(max-width: 640px)').addEventListener('change', () => render());
+if (HASH.get('focus')) {
+  const el = document.getElementById(HASH.get('focus'));
+  if (el && STILL) document.querySelector('main').style.marginTop = `-${el.getBoundingClientRect().top + window.scrollY - 24}px`;
+  else el?.scrollIntoView({ block: 'start' });
+}
+if (document.fonts && !STILL) document.fonts.ready.then(() => charts.forEach(c => c.update('none')));
+</script>
+</body>
+</html>
